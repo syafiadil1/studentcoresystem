@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useStudentCore } from "@/components/student-core-provider";
 import { assessmentStatusOptions, assessmentTypeOptions } from "@/lib/constants";
 import { AssessmentCreateForm, AssessmentUpdateForm } from "@/components/forms";
-import { Badge, DetailModal, DetailRow, EmptyState, Section } from "@/components/ui";
+import { Badge, DetailRow, EmptyState, Section } from "@/components/ui";
 import { getAssessmentPageData } from "@/lib/local-data";
 import { formatDateTime, titleCase } from "@/lib/utils";
 
@@ -25,8 +25,6 @@ export default function AssessmentsPage() {
     code: course.code,
     name: course.name,
   }));
-  const selectedAssessment =
-    data.assessments.find((assessment) => assessment.id === selectedAssessmentId) ?? null;
 
   return (
     <div className="space-y-6">
@@ -95,11 +93,16 @@ export default function AssessmentsPage() {
           {data.assessments.length ? (
             <div className="space-y-4">
               {data.assessments.map((assessment) => (
-                <div key={assessment.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                <div
+                  key={assessment.id}
+                  className={`rounded-3xl border bg-white/70 p-4 transition ${
+                    selectedAssessmentId === assessment.id ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]" : "border-stone-200"
+                  }`}
+                >
                   <div
                     className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl transition hover:bg-stone-50/80"
                     onClick={() => {
-                      setSelectedAssessmentId(assessment.id);
+                      setSelectedAssessmentId((current) => (current === assessment.id ? null : assessment.id));
                       setEditing(false);
                     }}
                   >
@@ -116,12 +119,46 @@ export default function AssessmentsPage() {
                     {formatDateTime(assessment.dueAt)}
                     {assessment.weight ? ` · ${assessment.weight}%` : ""}
                   </p>
-                  <AssessmentUpdateForm
-                    assessment={assessment}
-                    courses={courseOptions}
-                    onUpdate={updateAssessment}
-                    onDelete={deleteAssessment}
-                  />
+                  {selectedAssessmentId === assessment.id ? (
+                    <div className="space-y-4 border-t border-stone-200 pt-4">
+                      {!editing ? (
+                        <>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <DetailRow label="Type" value={titleCase(assessment.type)} />
+                            <DetailRow label="Status" value={titleCase(assessment.status)} />
+                            <DetailRow label="Course" value={assessment.course.name} />
+                            <DetailRow label="Weight" value={assessment.weight ? `${assessment.weight}%` : "Not set"} />
+                          </div>
+                          <div className="flex gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setEditing(true)}
+                              className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                            >
+                              Edit assessment
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedAssessmentId(null);
+                                setEditing(false);
+                              }}
+                              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                            >
+                              Collapse
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <AssessmentUpdateForm
+                          assessment={assessment}
+                          courses={courseOptions}
+                          onUpdate={updateAssessment}
+                          onDelete={deleteAssessment}
+                        />
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -131,42 +168,6 @@ export default function AssessmentsPage() {
         </Section>
       )}
 
-      <DetailModal
-        open={Boolean(selectedAssessment)}
-        title={selectedAssessment?.title || ""}
-        subtitle={selectedAssessment?.course.name || ""}
-        onClose={() => {
-          setSelectedAssessmentId(null);
-          setEditing(false);
-        }}
-      >
-        {selectedAssessment ? (
-          <>
-            {!editing ? (
-              <>
-                <DetailRow label="Type" value={titleCase(selectedAssessment.type)} />
-                <DetailRow label="Status" value={titleCase(selectedAssessment.status)} />
-                <DetailRow label="Due" value={formatDateTime(selectedAssessment.dueAt)} />
-                <DetailRow label="Weight" value={selectedAssessment.weight ? `${selectedAssessment.weight}%` : "Not set"} />
-                <button
-                  type="button"
-                  onClick={() => setEditing(true)}
-                  className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
-                >
-                  Edit assessment
-                </button>
-              </>
-            ) : (
-              <AssessmentUpdateForm
-                assessment={selectedAssessment}
-                courses={courseOptions}
-                onUpdate={updateAssessment}
-                onDelete={deleteAssessment}
-              />
-            )}
-          </>
-        ) : null}
-      </DetailModal>
     </div>
   );
 }

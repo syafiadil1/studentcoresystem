@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Plus, RotateCcw } from "lucide-react";
 import { useStudentCore } from "@/components/student-core-provider";
 import { AssessmentUpdateForm, SessionUpdateForm, TaskUpdateForm } from "@/components/forms";
-import { Badge, Button, DetailModal, DetailRow, EmptyState, Section, StatCard } from "@/components/ui";
+import { Badge, Button, DetailRow, EmptyState, Section, StatCard } from "@/components/ui";
 import { getDashboardData } from "@/lib/local-data";
 import { describeDeadline, formatDateTime, titleCase } from "@/lib/utils";
 
@@ -57,9 +57,6 @@ export default function DashboardPage() {
       : null;
   const selectedTaskCourse = selectedTask
     ? state.courses.find((course) => course.id === selectedTask.courseId)
-    : null;
-  const selectedAssessmentCourse = selectedAssessment
-    ? state.courses.find((course) => course.id === selectedAssessment.courseId)
     : null;
 
   return (
@@ -123,36 +120,82 @@ export default function DashboardPage() {
                   {data.todayClasses.map((session) => (
                     <div
                       key={session.id}
-                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
-                      onClick={() => {
-                        setSelectedItem({ kind: "class", id: session.id });
-                        setEditing(false);
-                      }}
+                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                        selectedItem?.kind === "class" && selectedItem.id === session.id
+                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
+                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                      }`}
                     >
-                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className="h-14 w-2 rounded-full"
-                            style={{ backgroundColor: session.color }}
-                          />
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
-                              {session.courseCode}
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelectedItem((current) =>
+                            current?.kind === "class" && current.id === session.id
+                              ? null
+                              : { kind: "class", id: session.id },
+                          );
+                          setEditing(false);
+                        }}
+                      >
+                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className="h-14 w-2 rounded-full"
+                              style={{ backgroundColor: session.color }}
+                            />
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+                                {session.courseCode}
+                              </p>
+                              <h3 className="text-lg font-semibold text-stone-900">
+                                {session.courseName}
+                              </h3>
+                              <p className="text-sm text-stone-600">{session.location}</p>
+                            </div>
+                          </div>
+
+                          <div className="text-sm text-stone-700">
+                            <p className="font-medium">
+                              {session.startTime} - {session.endTime}
                             </p>
-                            <h3 className="text-lg font-semibold text-stone-900">
-                              {session.courseName}
-                            </h3>
-                            <p className="text-sm text-stone-600">{session.location}</p>
+                            <Badge className="mt-2">{titleCase(session.sessionType)}</Badge>
                           </div>
                         </div>
-
-                        <div className="text-sm text-stone-700">
-                          <p className="font-medium">
-                            {session.startTime} - {session.endTime}
-                          </p>
-                          <Badge className="mt-2">{titleCase(session.sessionType)}</Badge>
-                        </div>
                       </div>
+                      {selectedItem?.kind === "class" && selectedItem.id === session.id && selectedClassCard && selectedClass ? (
+                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                          {!editing ? (
+                            <>
+                              <div className="grid gap-3 md:grid-cols-3">
+                                <DetailRow label="Time" value={`${selectedClassCard.startTime} - ${selectedClassCard.endTime}`} />
+                                <DetailRow label="Location" value={selectedClassCard.location} />
+                                <DetailRow label="Course" value={selectedClassCard.courseCode} />
+                              </div>
+                              <div className="flex gap-3">
+                                <Button type="button" onClick={() => setEditing(true)}>
+                                  Edit class
+                                </Button>
+                                <Button type="button" tone="secondary" onClick={() => setSelectedItem(null)}>
+                                  Collapse
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <SessionUpdateForm
+                              session={selectedClass}
+                              onUpdate={(sessionId, payload) => {
+                                updateSession(sessionId, payload);
+                                setEditing(false);
+                              }}
+                              onDelete={(sessionId) => {
+                                deleteSession(sessionId);
+                                setSelectedItem(null);
+                                setEditing(false);
+                              }}
+                            />
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -170,20 +213,71 @@ export default function DashboardPage() {
                   {data.upcomingAssessments.map((item) => (
                     <div
                       key={item.id}
-                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
-                      onClick={() => {
-                        setSelectedItem({ kind: "assessment", id: item.id });
-                        setEditing(false);
-                      }}
+                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                        selectedItem?.kind === "assessment" && selectedItem.id === item.id
+                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
+                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                      }`}
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <h3 className="font-semibold text-stone-900">{item.title}</h3>
-                          <p className="text-sm text-stone-600">{item.courseName}</p>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelectedItem((current) =>
+                            current?.kind === "assessment" && current.id === item.id
+                              ? null
+                              : { kind: "assessment", id: item.id },
+                          );
+                          setEditing(false);
+                        }}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h3 className="font-semibold text-stone-900">{item.title}</h3>
+                            <p className="text-sm text-stone-600">{item.courseName}</p>
+                          </div>
+                          <Badge>{titleCase(item.status)}</Badge>
                         </div>
-                        <Badge>{titleCase(item.status)}</Badge>
+                        <p className="mt-3 text-sm text-stone-700">{formatDateTime(item.dueAt)}</p>
                       </div>
-                      <p className="mt-3 text-sm text-stone-700">{formatDateTime(item.dueAt)}</p>
+                      {selectedItem?.kind === "assessment" &&
+                      selectedItem.id === item.id &&
+                      selectedAssessment &&
+                      selectedAssessmentCard ? (
+                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                          {!editing ? (
+                            <>
+                              <div className="grid gap-3 md:grid-cols-2">
+                                <DetailRow label="Type" value={titleCase(selectedAssessment.type)} />
+                                <DetailRow label="Status" value={titleCase(selectedAssessment.status)} />
+                                <DetailRow label="Due" value={formatDateTime(selectedAssessment.dueAt)} />
+                                <DetailRow label="Weight" value={selectedAssessment.weight ? `${selectedAssessment.weight}%` : "Not set"} />
+                              </div>
+                              <div className="flex gap-3">
+                                <Button type="button" onClick={() => setEditing(true)}>
+                                  Edit assessment
+                                </Button>
+                                <Button type="button" tone="secondary" onClick={() => setSelectedItem(null)}>
+                                  Collapse
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <AssessmentUpdateForm
+                              assessment={selectedAssessment}
+                              courses={courseOptions}
+                              onUpdate={(assessmentId, payload) => {
+                                updateAssessment(assessmentId, payload);
+                                setEditing(false);
+                              }}
+                              onDelete={(assessmentId) => {
+                                deleteAssessment(assessmentId);
+                                setSelectedItem(null);
+                                setEditing(false);
+                              }}
+                            />
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -203,25 +297,72 @@ export default function DashboardPage() {
                   {data.overdueTasks.map((task) => (
                     <div
                       key={task.id}
-                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
-                      onClick={() => {
-                        setSelectedItem({ kind: "task", id: task.id });
-                        setEditing(false);
-                      }}
+                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                        selectedItem?.kind === "task" && selectedItem.id === task.id
+                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
+                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                      }`}
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <h3 className="font-semibold text-stone-900">{task.title}</h3>
-                          <p className="text-sm text-stone-600">
-                            {state.courses.find((course) => course.id === task.courseId)?.name || "General task"}
-                          </p>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelectedItem((current) =>
+                            current?.kind === "task" && current.id === task.id ? null : { kind: "task", id: task.id },
+                          );
+                          setEditing(false);
+                        }}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h3 className="font-semibold text-stone-900">{task.title}</h3>
+                            <p className="text-sm text-stone-600">
+                              {state.courses.find((course) => course.id === task.courseId)?.name || "General task"}
+                            </p>
+                          </div>
+                          <Badge className="bg-[#f9d3d0] text-[#842029]">{titleCase(task.priority)}</Badge>
                         </div>
-                        <Badge className="bg-[#f9d3d0] text-[#842029]">{titleCase(task.priority)}</Badge>
+                        {task.dueAt ? (
+                          <p className="mt-3 text-sm text-stone-700">
+                            {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
+                          </p>
+                        ) : null}
                       </div>
-                      {task.dueAt ? (
-                        <p className="mt-3 text-sm text-stone-700">
-                          {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
-                        </p>
+                      {selectedItem?.kind === "task" && selectedItem.id === task.id && selectedTask ? (
+                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                          {!editing ? (
+                            <>
+                              <div className="grid gap-3 md:grid-cols-2">
+                                <DetailRow label="Status" value={titleCase(selectedTask.status)} />
+                                <DetailRow label="Priority" value={titleCase(selectedTask.priority)} />
+                                <DetailRow label="Category" value={titleCase(selectedTask.category)} />
+                                <DetailRow label="Course" value={selectedTaskCourse?.name || "General task"} />
+                              </div>
+                              <DetailRow label="Description" value={selectedTask.description || "No description"} />
+                              <div className="flex gap-3">
+                                <Button type="button" onClick={() => setEditing(true)}>
+                                  Edit task
+                                </Button>
+                                <Button type="button" tone="secondary" onClick={() => setSelectedItem(null)}>
+                                  Collapse
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <TaskUpdateForm
+                              task={selectedTask}
+                              courses={courseOptions}
+                              onUpdate={(taskId, payload) => {
+                                updateTask(taskId, payload);
+                                setEditing(false);
+                              }}
+                              onDelete={(taskId) => {
+                                deleteTask(taskId);
+                                setSelectedItem(null);
+                                setEditing(false);
+                              }}
+                            />
+                          )}
+                        </div>
                       ) : null}
                     </div>
                   ))}
@@ -237,25 +378,72 @@ export default function DashboardPage() {
                   {data.dueSoonTasks.map((task) => (
                     <div
                       key={task.id}
-                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
-                      onClick={() => {
-                        setSelectedItem({ kind: "task", id: task.id });
-                        setEditing(false);
-                      }}
+                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                        selectedItem?.kind === "task" && selectedItem.id === task.id
+                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
+                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                      }`}
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <h3 className="font-semibold text-stone-900">{task.title}</h3>
-                          <p className="text-sm text-stone-600">
-                            {state.courses.find((course) => course.id === task.courseId)?.name || "General task"}
-                          </p>
+                      <div
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelectedItem((current) =>
+                            current?.kind === "task" && current.id === task.id ? null : { kind: "task", id: task.id },
+                          );
+                          setEditing(false);
+                        }}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h3 className="font-semibold text-stone-900">{task.title}</h3>
+                            <p className="text-sm text-stone-600">
+                              {state.courses.find((course) => course.id === task.courseId)?.name || "General task"}
+                            </p>
+                          </div>
+                          <Badge>{titleCase(task.status)}</Badge>
                         </div>
-                        <Badge>{titleCase(task.status)}</Badge>
+                        {task.dueAt ? (
+                          <p className="mt-3 text-sm text-stone-700">
+                            {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
+                          </p>
+                        ) : null}
                       </div>
-                      {task.dueAt ? (
-                        <p className="mt-3 text-sm text-stone-700">
-                          {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
-                        </p>
+                      {selectedItem?.kind === "task" && selectedItem.id === task.id && selectedTask ? (
+                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                          {!editing ? (
+                            <>
+                              <div className="grid gap-3 md:grid-cols-2">
+                                <DetailRow label="Status" value={titleCase(selectedTask.status)} />
+                                <DetailRow label="Priority" value={titleCase(selectedTask.priority)} />
+                                <DetailRow label="Category" value={titleCase(selectedTask.category)} />
+                                <DetailRow label="Course" value={selectedTaskCourse?.name || "General task"} />
+                              </div>
+                              <DetailRow label="Description" value={selectedTask.description || "No description"} />
+                              <div className="flex gap-3">
+                                <Button type="button" onClick={() => setEditing(true)}>
+                                  Edit task
+                                </Button>
+                                <Button type="button" tone="secondary" onClick={() => setSelectedItem(null)}>
+                                  Collapse
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <TaskUpdateForm
+                              task={selectedTask}
+                              courses={courseOptions}
+                              onUpdate={(taskId, payload) => {
+                                updateTask(taskId, payload);
+                                setEditing(false);
+                              }}
+                              onDelete={(taskId) => {
+                                deleteTask(taskId);
+                                setSelectedItem(null);
+                                setEditing(false);
+                              }}
+                            />
+                          )}
+                        </div>
                       ) : null}
                     </div>
                   ))}
@@ -271,130 +459,6 @@ export default function DashboardPage() {
         </>
       )}
 
-      <DetailModal
-        open={Boolean(selectedClassCard && selectedClass)}
-        title={selectedClassCard?.courseName || ""}
-        subtitle={selectedClassCard ? `${selectedClassCard.courseCode} · ${titleCase(selectedClassCard.sessionType)}` : ""}
-        onClose={() => {
-          setSelectedItem(null);
-          setEditing(false);
-        }}
-      >
-        {selectedClassCard && selectedClass ? (
-          <>
-            {!editing ? (
-              <>
-                <DetailRow label="Time" value={`${selectedClassCard.startTime} - ${selectedClassCard.endTime}`} />
-                <DetailRow label="Location" value={selectedClassCard.location} />
-                <DetailRow label="Course" value={selectedClassCard.courseCode} />
-                <Button type="button" onClick={() => setEditing(true)}>
-                  Edit class
-                </Button>
-              </>
-            ) : (
-              <SessionUpdateForm
-                session={selectedClass}
-                onUpdate={(sessionId, payload) => {
-                  updateSession(sessionId, payload);
-                  setEditing(false);
-                }}
-                onDelete={(sessionId) => {
-                  deleteSession(sessionId);
-                  setSelectedItem(null);
-                  setEditing(false);
-                }}
-              />
-            )}
-          </>
-        ) : null}
-      </DetailModal>
-
-      <DetailModal
-        open={Boolean(selectedTask)}
-        title={selectedTask?.title || ""}
-        subtitle={selectedTaskCourse?.name || "General task"}
-        onClose={() => {
-          setSelectedItem(null);
-          setEditing(false);
-        }}
-      >
-        {selectedTask ? (
-          <>
-            {!editing ? (
-              <>
-                <DetailRow label="Status" value={titleCase(selectedTask.status)} />
-                <DetailRow label="Priority" value={titleCase(selectedTask.priority)} />
-                <DetailRow label="Category" value={titleCase(selectedTask.category)} />
-                <DetailRow
-                  label="Due"
-                  value={selectedTask.dueAt ? `${formatDateTime(selectedTask.dueAt)} · ${describeDeadline(selectedTask.dueAt)}` : "No due date"}
-                />
-                <DetailRow label="Description" value={selectedTask.description || "No description"} />
-                <Button type="button" onClick={() => setEditing(true)}>
-                  Edit task
-                </Button>
-              </>
-            ) : (
-              <TaskUpdateForm
-                task={selectedTask}
-                courses={courseOptions}
-                onUpdate={(taskId, payload) => {
-                  updateTask(taskId, payload);
-                  setEditing(false);
-                }}
-                onDelete={(taskId) => {
-                  deleteTask(taskId);
-                  setSelectedItem(null);
-                  setEditing(false);
-                }}
-              />
-            )}
-          </>
-        ) : null}
-      </DetailModal>
-
-      <DetailModal
-        open={Boolean(selectedAssessment && selectedAssessmentCard)}
-        title={selectedAssessment?.title || ""}
-        subtitle={selectedAssessmentCourse?.name || selectedAssessmentCard?.courseName || ""}
-        onClose={() => {
-          setSelectedItem(null);
-          setEditing(false);
-        }}
-      >
-        {selectedAssessment && selectedAssessmentCard ? (
-          <>
-            {!editing ? (
-              <>
-                <DetailRow label="Type" value={titleCase(selectedAssessment.type)} />
-                <DetailRow label="Status" value={titleCase(selectedAssessment.status)} />
-                <DetailRow label="Due" value={formatDateTime(selectedAssessment.dueAt)} />
-                <DetailRow
-                  label="Weight"
-                  value={selectedAssessment.weight ? `${selectedAssessment.weight}%` : "Not set"}
-                />
-                <Button type="button" onClick={() => setEditing(true)}>
-                  Edit assessment
-                </Button>
-              </>
-            ) : (
-              <AssessmentUpdateForm
-                assessment={selectedAssessment}
-                courses={courseOptions}
-                onUpdate={(assessmentId, payload) => {
-                  updateAssessment(assessmentId, payload);
-                  setEditing(false);
-                }}
-                onDelete={(assessmentId) => {
-                  deleteAssessment(assessmentId);
-                  setSelectedItem(null);
-                  setEditing(false);
-                }}
-              />
-            )}
-          </>
-        ) : null}
-      </DetailModal>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useStudentCore } from "@/components/student-core-provider";
 import { taskStatusOptions } from "@/lib/constants";
 import { TaskCreateForm, TaskUpdateForm } from "@/components/forms";
-import { Badge, DetailModal, DetailRow, EmptyState, Section } from "@/components/ui";
+import { Badge, DetailRow, EmptyState, Section } from "@/components/ui";
 import { getTaskPageData } from "@/lib/local-data";
 import { describeDeadline, formatDateTime, titleCase } from "@/lib/utils";
 
@@ -20,7 +20,6 @@ export default function TasksPage() {
     code: course.code,
     name: course.name,
   }));
-  const selectedTask = data.tasks.find((task) => task.id === selectedTaskId) ?? null;
 
   return (
     <div className="space-y-6">
@@ -72,11 +71,16 @@ export default function TasksPage() {
           {data.tasks.length ? (
             <div className="space-y-4">
               {data.tasks.map((task) => (
-                <div key={task.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                <div
+                  key={task.id}
+                  className={`rounded-3xl border bg-white/70 p-4 transition ${
+                    selectedTaskId === task.id ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]" : "border-stone-200"
+                  }`}
+                >
                   <div
                     className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl transition hover:bg-stone-50/80"
                     onClick={() => {
-                      setSelectedTaskId(task.id);
+                      setSelectedTaskId((current) => (current === task.id ? null : task.id));
                       setEditing(false);
                     }}
                   >
@@ -94,7 +98,42 @@ export default function TasksPage() {
                       {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
                     </p>
                   ) : null}
-                  <TaskUpdateForm task={task} courses={courseOptions} onUpdate={updateTask} onDelete={deleteTask} />
+                  {selectedTaskId === task.id ? (
+                    <div className="space-y-4 border-t border-stone-200 pt-4">
+                      {!editing ? (
+                        <>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <DetailRow label="Status" value={titleCase(task.status)} />
+                            <DetailRow label="Priority" value={titleCase(task.priority)} />
+                            <DetailRow label="Category" value={titleCase(task.category)} />
+                            <DetailRow label="Course" value={task.course?.name || "General task"} />
+                          </div>
+                          <DetailRow label="Description" value={task.description || "No description"} />
+                          <div className="flex gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setEditing(true)}
+                              className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                            >
+                              Edit task
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedTaskId(null);
+                                setEditing(false);
+                              }}
+                              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                            >
+                              Collapse
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <TaskUpdateForm task={task} courses={courseOptions} onUpdate={updateTask} onDelete={deleteTask} />
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -104,41 +143,6 @@ export default function TasksPage() {
         </Section>
       )}
 
-      <DetailModal
-        open={Boolean(selectedTask)}
-        title={selectedTask?.title || ""}
-        subtitle={selectedTask?.course?.name || "General task"}
-        onClose={() => {
-          setSelectedTaskId(null);
-          setEditing(false);
-        }}
-      >
-        {selectedTask ? (
-          <>
-            {!editing ? (
-              <>
-                <DetailRow label="Status" value={titleCase(selectedTask.status)} />
-                <DetailRow label="Priority" value={titleCase(selectedTask.priority)} />
-                <DetailRow label="Category" value={titleCase(selectedTask.category)} />
-                <DetailRow
-                  label="Due"
-                  value={selectedTask.dueAt ? `${formatDateTime(selectedTask.dueAt)} · ${describeDeadline(selectedTask.dueAt)}` : "No due date"}
-                />
-                <DetailRow label="Description" value={selectedTask.description || "No description"} />
-                <button
-                  type="button"
-                  onClick={() => setEditing(true)}
-                  className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
-                >
-                  Edit task
-                </button>
-              </>
-            ) : (
-              <TaskUpdateForm task={selectedTask} courses={courseOptions} onUpdate={updateTask} onDelete={deleteTask} />
-            )}
-          </>
-        ) : null}
-      </DetailModal>
     </div>
   );
 }
