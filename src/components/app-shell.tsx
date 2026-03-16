@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 Academic Workspace
               </h1>
               <p className="mt-2 text-sm leading-6 text-stone-600">
-                StudentCore keeps your classes, deadlines, files, and weekly study flow in one place.
+                StudentCore keeps your classes, deadlines, files, and weekly study flow in one browser workspace.
               </p>
             </div>
 
@@ -57,9 +57,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </nav>
 
             <div className="mt-auto rounded-2xl bg-stone-900 px-4 py-4 text-sm text-stone-100">
-              <p className="font-medium">StudentCore workspace</p>
+              <p className="font-medium">Browser-local workspace</p>
               <p className="mt-2 text-stone-300">
-                Built for a single student workflow with local storage and demo data.
+                Data is stored in this browser only. Other users start with their own empty workspace.
               </p>
             </div>
           </div>

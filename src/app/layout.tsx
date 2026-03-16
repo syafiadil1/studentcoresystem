@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell";
+import { StudentCoreProvider } from "@/components/student-core-provider";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -15,7 +16,7 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: "StudentCore",
-  description: "StudentCore helps you manage courses, files, timetable, tasks, and assessments in one workspace.",
+  description: "StudentCore helps you manage courses, tasks, timetable, assessments, and files in your own browser workspace.",
 };
 
 export default function RootLayout({
@@ -26,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${dmSans.variable} ${fraunces.variable} antialiased`}>
-        <AppShell>{children}</AppShell>
+        <StudentCoreProvider>
+          <AppShell>{children}</AppShell>
+        </StudentCoreProvider>
       </body>
     </html>
   );

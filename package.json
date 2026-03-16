@@ -6,18 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "db:generate": "prisma generate",
-    "db:setup": "sqlite3 prisma/dev.db < prisma/init.sql && npm run db:seed",
-    "db:seed": "prisma db seed"
+    "lint": "eslint"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
-    "prisma": "^6.19.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
@@ -29,10 +24,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0",
     "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

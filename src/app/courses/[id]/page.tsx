@@ -1,5 +1,8 @@
-import { notFound } from "next/navigation";
-import { getCourseDetail, getCoursesPageData } from "@/lib/data";
+"use client";
+
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useStudentCore } from "@/components/student-core-provider";
 import {
   AssessmentCreateForm,
   AssessmentUpdateForm,
@@ -11,31 +14,68 @@ import {
   TaskCreateForm,
   TaskUpdateForm,
 } from "@/components/forms";
-import { Badge, EmptyState, Section } from "@/components/ui";
+import { Badge, Button, EmptyState, Section } from "@/components/ui";
+import { getCourseDetail, getCoursesPageData } from "@/lib/local-data";
 import { bytesToSize, describeDeadline, formatDateTime, titleCase } from "@/lib/utils";
 
-type Params = Promise<{ id: string }>;
+export default function CourseDetailPage() {
+  const params = useParams<{ id: string }>();
+  const router = useRouter();
+  const {
+    hydrated,
+    state,
+    updateCourse,
+    deleteCourse,
+    createSession,
+    updateSession,
+    deleteSession,
+    createTask,
+    updateTask,
+    deleteTask,
+    createAssessment,
+    updateAssessment,
+    deleteAssessment,
+    uploadFile,
+    deleteFile,
+  } = useStudentCore();
 
-export default async function CourseDetailPage({ params }: { params: Params }) {
-  const { id } = await params;
-  const [course, semesters] = await Promise.all([getCourseDetail(id), getCoursesPageData()]);
-
-  if (!course) {
-    notFound();
-  }
-
-  const semesterOptions = semesters.map((semester) => ({
+  const course = getCourseDetail(state, params.id);
+  const semesters = getCoursesPageData(state).map((semester) => ({
     id: semester.id,
     name: semester.name,
     isActive: semester.isActive,
   }));
-  const courseOptions = semesters.flatMap((semester) =>
-    semester.courses.map((item) => ({
-      id: item.id,
-      code: item.code,
-      name: item.name,
-    })),
-  );
+  const courseOptions = state.courses.map((item) => ({
+    id: item.id,
+    code: item.code,
+    name: item.name,
+  }));
+
+  if (!hydrated) {
+    return <EmptyState title="Loading course" copy="Reading course data from this browser." />;
+  }
+
+  if (!course || !course.semester) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <div className="max-w-md rounded-[32px] border border-stone-200 bg-[#fffaf3]/90 p-8 text-center shadow-[0_24px_80px_rgba(80,54,36,0.08)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">Not Found</p>
+          <h1 className="mt-4 text-4xl font-semibold text-stone-900">This course does not exist in this browser workspace.</h1>
+          <p className="mt-4 text-sm leading-6 text-stone-600">
+            Head back to StudentCore courses and create a course for this browser.
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link href="/courses">
+              <Button>Courses</Button>
+            </Link>
+            <Link href="/">
+              <Button tone="secondary">Dashboard</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -60,23 +100,24 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
         </div>
       </section>
 
-      <Section title="Course Info" description="Update course details or remove the course.">
+      <Section title="Course Info" description="Update course details or remove the course from this browser.">
         <CourseUpdateForm
-          course={{
-            id: course.id,
-            code: course.code,
-            name: course.name,
-            lecturerName: course.lecturerName,
-            color: course.color,
-            semesterId: course.semesterId,
+          course={course}
+          semesters={semesters}
+          onUpdate={updateCourse}
+          onDelete={(courseId) => {
+            deleteCourse(courseId);
+            router.push("/courses");
           }}
-          semesters={semesterOptions}
         />
       </Section>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Section title="Files" description="Upload and organise course materials.">
-          <FileUploadForm courseId={course.id} sourcePath={`/courses/${course.id}`} />
+        <Section title="Files" description="Files stay in this browser only after upload.">
+          <FileUploadForm
+            courseId={course.id}
+            onUpload={(payload) => uploadFile({ ...payload, courseId: course.id })}
+          />
           <div className="mt-5 space-y-3">
             {course.files.length ? (
               course.files.map((file) => (
@@ -90,13 +131,13 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
                     </div>
                     <div className="flex gap-3">
                       <a
-                        href={`/api/files/${file.id}`}
-                        target="_blank"
+                        href={file.fileDataUrl}
+                        download={file.fileName}
                         className="inline-flex items-center justify-center rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
                       >
                         Open
                       </a>
-                      <FileDeleteForm fileId={file.id} sourcePath={`/courses/${course.id}`} />
+                      <FileDeleteForm fileId={file.id} onDelete={deleteFile} />
                     </div>
                   </div>
                 </div>
@@ -108,7 +149,7 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
         </Section>
 
         <Section title="Class Sessions" description="Timetable entries linked to this course.">
-          <SessionCreateForm courses={courseOptions.filter((item) => item.id === course.id)} sourcePath={`/courses/${course.id}`} />
+          <SessionCreateForm courses={courseOptions.filter((item) => item.id === course.id)} onCreate={createSession} fixedCourseId={course.id} />
           <div className="mt-5 space-y-4">
             {course.sessions.length ? (
               course.sessions.map((session) => (
@@ -116,17 +157,7 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
                   <p className="mb-3 text-sm text-stone-600">
                     {titleCase(session.dayOfWeek)} · {session.startTime} - {session.endTime}
                   </p>
-                  <SessionUpdateForm
-                    session={{
-                      id: session.id,
-                      dayOfWeek: session.dayOfWeek,
-                      startTime: session.startTime,
-                      endTime: session.endTime,
-                      location: session.location,
-                      sessionType: session.sessionType,
-                    }}
-                    sourcePath={`/courses/${course.id}`}
-                  />
+                  <SessionUpdateForm session={session} onUpdate={updateSession} onDelete={deleteSession} />
                 </div>
               ))
             ) : (
@@ -138,7 +169,7 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Section title="Tasks" description="Linked tasks for this course.">
-          <TaskCreateForm courses={courseOptions.filter((item) => item.id === course.id)} sourcePath={`/courses/${course.id}`} />
+          <TaskCreateForm courses={courseOptions.filter((item) => item.id === course.id)} onCreate={createTask} fixedCourseId={course.id} />
           <div className="mt-5 space-y-4">
             {course.tasks.length ? (
               course.tasks.map((task) => (
@@ -148,20 +179,7 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
                     <Badge className="bg-[#f6d8c8] text-[#7a3626]">{titleCase(task.priority)}</Badge>
                     {task.dueAt ? <span className="text-sm text-stone-600">{describeDeadline(task.dueAt)}</span> : null}
                   </div>
-                  <TaskUpdateForm
-                    task={{
-                      id: task.id,
-                      title: task.title,
-                      description: task.description,
-                      category: task.category,
-                      status: task.status,
-                      priority: task.priority,
-                      dueAt: task.dueAt,
-                      courseId: task.courseId,
-                    }}
-                    courses={courseOptions}
-                    sourcePath={`/courses/${course.id}`}
-                  />
+                  <TaskUpdateForm task={task} courses={courseOptions} onUpdate={updateTask} onDelete={deleteTask} />
                 </div>
               ))
             ) : (
@@ -171,7 +189,7 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
         </Section>
 
         <Section title="Assessments" description="Track graded work for this course.">
-          <AssessmentCreateForm courses={courseOptions.filter((item) => item.id === course.id)} sourcePath={`/courses/${course.id}`} />
+          <AssessmentCreateForm courses={courseOptions.filter((item) => item.id === course.id)} onCreate={createAssessment} fixedCourseId={course.id} />
           <div className="mt-5 space-y-4">
             {course.assessments.length ? (
               course.assessments.map((assessment) => (
@@ -182,17 +200,10 @@ export default async function CourseDetailPage({ params }: { params: Params }) {
                     <span className="text-sm text-stone-600">{formatDateTime(assessment.dueAt)}</span>
                   </div>
                   <AssessmentUpdateForm
-                    assessment={{
-                      id: assessment.id,
-                      title: assessment.title,
-                      type: assessment.type,
-                      dueAt: assessment.dueAt,
-                      weight: assessment.weight,
-                      status: assessment.status,
-                      courseId: assessment.courseId,
-                    }}
+                    assessment={assessment}
                     courses={courseOptions}
-                    sourcePath={`/courses/${course.id}`}
+                    onUpdate={updateAssessment}
+                    onDelete={deleteAssessment}
                   />
                 </div>
               ))

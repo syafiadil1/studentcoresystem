@@ -1,21 +1,6 @@
-import {
-  createAssessment,
-  createClassSession,
-  createCourse,
-  createSemester,
-  createTaskItem,
-  deleteAssessment,
-  deleteClassSession,
-  deleteCourse,
-  deleteCourseFile,
-  deleteSemester,
-  deleteTaskItem,
-  updateAssessment,
-  updateClassSession,
-  updateCourse,
-  updateTaskItem,
-  uploadCourseFile,
-} from "@/lib/actions";
+"use client";
+
+import { useState, type FormEvent } from "react";
 import {
   assessmentStatusOptions,
   assessmentTypeOptions,
@@ -26,24 +11,56 @@ import {
   taskPriorityOptions,
   taskStatusOptions,
 } from "@/lib/constants";
+import type {
+  Assessment,
+  AssessmentStatus,
+  AssessmentType,
+  ClassSession,
+  Course,
+  FileCategory,
+  Semester,
+  SessionType,
+  TaskCategory,
+  TaskItem,
+  TaskPriority,
+  TaskStatus,
+} from "@/lib/types";
 import { Button, Field, Input, Select, Textarea } from "@/components/ui";
 import { titleCase, toDateTimeLocal } from "@/lib/utils";
 
-type SemesterOption = {
-  id: string;
-  name: string;
-  isActive: boolean;
-};
+type SemesterOption = Pick<Semester, "id" | "name" | "isActive">;
+type CourseOption = Pick<Course, "id" | "code" | "name">;
 
-type CourseOption = {
-  id: string;
-  code: string;
-  name: string;
-};
+function formData(event: FormEvent<HTMLFormElement>) {
+  return new FormData(event.currentTarget);
+}
 
-export function SemesterCreateForm() {
+function resetIfCreate(form: HTMLFormElement, reset: boolean) {
+  if (reset) {
+    form.reset();
+  }
+}
+
+export function SemesterCreateForm({
+  onCreate,
+}: {
+  onCreate: (payload: { name: string; startDate: string; endDate: string; isActive: boolean }) => void;
+}) {
   return (
-    <form action={createSemester} className="grid gap-4 rounded-3xl border border-stone-200 bg-white/70 p-4 md:grid-cols-2">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onCreate({
+          name: String(data.get("name") || "").trim(),
+          startDate: String(data.get("startDate") || ""),
+          endDate: String(data.get("endDate") || ""),
+          isActive: data.get("isActive") === "on",
+        });
+        resetIfCreate(event.currentTarget, true);
+      }}
+      className="grid gap-4 rounded-3xl border border-stone-200 bg-white/70 p-4 md:grid-cols-2"
+    >
       <Field label="Semester name">
         <Input name="name" placeholder="Semester 1 2026" required />
       </Field>
@@ -64,20 +81,49 @@ export function SemesterCreateForm() {
   );
 }
 
-export function SemesterDeleteForm({ semesterId }: { semesterId: string }) {
+export function SemesterDeleteForm({
+  semesterId,
+  onDelete,
+}: {
+  semesterId: string;
+  onDelete: (semesterId: string) => void;
+}) {
   return (
-    <form action={deleteSemester}>
-      <input name="semesterId" type="hidden" value={semesterId} />
-      <Button type="submit" tone="danger">
-        Delete
-      </Button>
-    </form>
+    <Button type="button" tone="danger" onClick={() => onDelete(semesterId)}>
+      Delete
+    </Button>
   );
 }
 
-export function CourseCreateForm({ semesters }: { semesters: SemesterOption[] }) {
+export function CourseCreateForm({
+  semesters,
+  onCreate,
+}: {
+  semesters: SemesterOption[];
+  onCreate: (payload: {
+    code: string;
+    name: string;
+    lecturerName: string;
+    color: string;
+    semesterId: string;
+  }) => void;
+}) {
   return (
-    <form action={createCourse} className="grid gap-4 md:grid-cols-2">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onCreate({
+          code: String(data.get("code") || "").trim(),
+          name: String(data.get("name") || "").trim(),
+          lecturerName: String(data.get("lecturerName") || "").trim(),
+          color: String(data.get("color") || "#E16A54"),
+          semesterId: String(data.get("semesterId") || ""),
+        });
+        resetIfCreate(event.currentTarget, true);
+      }}
+      className="grid gap-4 md:grid-cols-2"
+    >
       <Field label="Course code">
         <Input name="code" placeholder="CSC204" required />
       </Field>
@@ -89,6 +135,9 @@ export function CourseCreateForm({ semesters }: { semesters: SemesterOption[] })
       </Field>
       <Field label="Semester">
         <Select name="semesterId" defaultValue={semesters.find((semester) => semester.isActive)?.id} required>
+          <option value="" disabled>
+            Select semester
+          </option>
           {semesters.map((semester) => (
             <option key={semester.id} value={semester.id}>
               {semester.name}
@@ -109,20 +158,38 @@ export function CourseCreateForm({ semesters }: { semesters: SemesterOption[] })
 export function CourseUpdateForm({
   course,
   semesters,
+  onUpdate,
+  onDelete,
 }: {
-  course: {
-    id: string;
-    code: string;
-    name: string;
-    lecturerName: string;
-    color: string;
-    semesterId: string;
-  };
+  course: Pick<Course, "id" | "code" | "name" | "lecturerName" | "color" | "semesterId">;
   semesters: SemesterOption[];
+  onUpdate: (
+    courseId: string,
+    payload: {
+      code: string;
+      name: string;
+      lecturerName: string;
+      color: string;
+      semesterId: string;
+    },
+  ) => void;
+  onDelete: (courseId: string) => void;
 }) {
   return (
-    <form action={updateCourse} className="grid gap-4 md:grid-cols-2">
-      <input name="courseId" type="hidden" value={course.id} />
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onUpdate(course.id, {
+          code: String(data.get("code") || "").trim(),
+          name: String(data.get("name") || "").trim(),
+          lecturerName: String(data.get("lecturerName") || "").trim(),
+          color: String(data.get("color") || "#E16A54"),
+          semesterId: String(data.get("semesterId") || ""),
+        });
+      }}
+      className="grid gap-4 md:grid-cols-2"
+    >
       <Field label="Course code">
         <Input name="code" defaultValue={course.code} required />
       </Field>
@@ -146,7 +213,7 @@ export function CourseUpdateForm({
       </Field>
       <div className="md:col-span-2 flex gap-3">
         <Button type="submit">Save course</Button>
-        <Button type="submit" formAction={deleteCourse} tone="danger">
+        <Button type="button" tone="danger" onClick={() => onDelete(course.id)}>
           Delete course
         </Button>
       </div>
@@ -156,23 +223,48 @@ export function CourseUpdateForm({
 
 export function SessionCreateForm({
   courses,
-  sourcePath,
+  onCreate,
+  fixedCourseId,
 }: {
   courses: CourseOption[];
-  sourcePath: string;
+  onCreate: (payload: {
+    courseId: string;
+    dayOfWeek: ClassSession["dayOfWeek"];
+    startTime: string;
+    endTime: string;
+    location: string;
+    sessionType: SessionType;
+  }) => void;
+  fixedCourseId?: string;
 }) {
   return (
-    <form action={createClassSession} className="grid gap-4 md:grid-cols-3">
-      <input name="sourcePath" type="hidden" value={sourcePath} />
-      <Field label="Course">
-        <Select name="courseId" required>
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.code} · {course.name}
-            </option>
-          ))}
-        </Select>
-      </Field>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onCreate({
+          courseId: fixedCourseId || String(data.get("courseId") || ""),
+          dayOfWeek: String(data.get("dayOfWeek") || "MONDAY") as ClassSession["dayOfWeek"],
+          startTime: String(data.get("startTime") || ""),
+          endTime: String(data.get("endTime") || ""),
+          location: String(data.get("location") || "").trim(),
+          sessionType: String(data.get("sessionType") || "LECTURE") as SessionType,
+        });
+        resetIfCreate(event.currentTarget, true);
+      }}
+      className="grid gap-4 md:grid-cols-3"
+    >
+      {!fixedCourseId ? (
+        <Field label="Course">
+          <Select name="courseId" required defaultValue={courses[0]?.id || ""}>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.code} · {course.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      ) : null}
       <Field label="Day">
         <Select name="dayOfWeek" defaultValue="MONDAY" required>
           {dayOrder.map((day) => (
@@ -209,22 +301,39 @@ export function SessionCreateForm({
 
 export function SessionUpdateForm({
   session,
-  sourcePath,
+  onUpdate,
+  onDelete,
 }: {
-  session: {
-    id: string;
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
-    location: string;
-    sessionType: string;
-  };
-  sourcePath: string;
+  session: Pick<ClassSession, "id" | "dayOfWeek" | "startTime" | "endTime" | "location" | "sessionType" | "courseId">;
+  onUpdate: (
+    sessionId: string,
+    payload: {
+      courseId: string;
+      dayOfWeek: ClassSession["dayOfWeek"];
+      startTime: string;
+      endTime: string;
+      location: string;
+      sessionType: SessionType;
+    },
+  ) => void;
+  onDelete: (sessionId: string) => void;
 }) {
   return (
-    <form action={updateClassSession} className="grid gap-3 md:grid-cols-5">
-      <input name="sessionId" type="hidden" value={session.id} />
-      <input name="sourcePath" type="hidden" value={sourcePath} />
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onUpdate(session.id, {
+          courseId: session.courseId,
+          dayOfWeek: String(data.get("dayOfWeek") || "MONDAY") as ClassSession["dayOfWeek"],
+          startTime: String(data.get("startTime") || ""),
+          endTime: String(data.get("endTime") || ""),
+          location: String(data.get("location") || "").trim(),
+          sessionType: String(data.get("sessionType") || "LECTURE") as SessionType,
+        });
+      }}
+      className="grid gap-3 md:grid-cols-5"
+    >
       <Select name="dayOfWeek" defaultValue={session.dayOfWeek}>
         {dayOrder.map((day) => (
           <option key={day} value={day}>
@@ -244,7 +353,7 @@ export function SessionUpdateForm({
       </Select>
       <div className="md:col-span-5 flex gap-3">
         <Button type="submit">Save</Button>
-        <Button type="submit" formAction={deleteClassSession} tone="danger">
+        <Button type="button" tone="danger" onClick={() => onDelete(session.id)}>
           Delete
         </Button>
       </div>
@@ -254,27 +363,56 @@ export function SessionUpdateForm({
 
 export function TaskCreateForm({
   courses,
-  sourcePath,
+  onCreate,
+  fixedCourseId,
 }: {
   courses: CourseOption[];
-  sourcePath: string;
+  onCreate: (payload: {
+    title: string;
+    description: string;
+    category: TaskCategory;
+    status: TaskStatus;
+    priority: TaskPriority;
+    dueAt: string | null;
+    courseId: string | null;
+  }) => void;
+  fixedCourseId?: string;
 }) {
   return (
-    <form action={createTaskItem} className="grid gap-4 md:grid-cols-2">
-      <input name="sourcePath" type="hidden" value={sourcePath} />
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        const courseId = fixedCourseId || String(data.get("courseId") || "");
+
+        onCreate({
+          title: String(data.get("title") || "").trim(),
+          description: String(data.get("description") || "").trim(),
+          category: String(data.get("category") || "GENERAL") as TaskCategory,
+          status: String(data.get("status") || "TODO") as TaskStatus,
+          priority: String(data.get("priority") || "MEDIUM") as TaskPriority,
+          dueAt: String(data.get("dueAt") || "") || null,
+          courseId: courseId || null,
+        });
+        resetIfCreate(event.currentTarget, true);
+      }}
+      className="grid gap-4 md:grid-cols-2"
+    >
       <Field label="Task title">
         <Input name="title" placeholder="Submit lab reflection" required />
       </Field>
-      <Field label="Linked course">
-        <Select name="courseId" defaultValue="">
-          <option value="">General task</option>
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.code} · {course.name}
-            </option>
-          ))}
-        </Select>
-      </Field>
+      {!fixedCourseId ? (
+        <Field label="Linked course">
+          <Select name="courseId" defaultValue="">
+            <option value="">General task</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.code} · {course.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      ) : null}
       <Field label="Description">
         <Textarea name="description" placeholder="Short notes about the task" required />
       </Field>
@@ -320,25 +458,43 @@ export function TaskCreateForm({
 export function TaskUpdateForm({
   task,
   courses,
-  sourcePath,
+  onUpdate,
+  onDelete,
 }: {
-  task: {
-    id: string;
-    title: string;
-    description: string;
-    category: string;
-    status: string;
-    priority: string;
-    dueAt: Date | null;
-    courseId: string | null;
-  };
+  task: Pick<TaskItem, "id" | "title" | "description" | "category" | "status" | "priority" | "dueAt" | "courseId">;
   courses: CourseOption[];
-  sourcePath: string;
+  onUpdate: (
+    taskId: string,
+    payload: {
+      title: string;
+      description: string;
+      category: TaskCategory;
+      status: TaskStatus;
+      priority: TaskPriority;
+      dueAt: string | null;
+      courseId: string | null;
+    },
+  ) => void;
+  onDelete: (taskId: string) => void;
 }) {
   return (
-    <form action={updateTaskItem} className="grid gap-3 md:grid-cols-3">
-      <input name="taskId" type="hidden" value={task.id} />
-      <input name="sourcePath" type="hidden" value={sourcePath} />
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        const courseId = String(data.get("courseId") || "");
+        onUpdate(task.id, {
+          title: String(data.get("title") || "").trim(),
+          description: String(data.get("description") || "").trim(),
+          category: String(data.get("category") || "GENERAL") as TaskCategory,
+          status: String(data.get("status") || "TODO") as TaskStatus,
+          priority: String(data.get("priority") || "MEDIUM") as TaskPriority,
+          dueAt: String(data.get("dueAt") || "") || null,
+          courseId: courseId || null,
+        });
+      }}
+      className="grid gap-3 md:grid-cols-3"
+    >
       <Input name="title" defaultValue={task.title} />
       <Select name="courseId" defaultValue={task.courseId || ""}>
         <option value="">General task</option>
@@ -373,7 +529,7 @@ export function TaskUpdateForm({
       </Select>
       <div className="md:col-span-3 flex gap-3">
         <Button type="submit">Save</Button>
-        <Button type="submit" formAction={deleteTaskItem} tone="danger">
+        <Button type="button" tone="danger" onClick={() => onDelete(task.id)}>
           Delete
         </Button>
       </div>
@@ -383,26 +539,51 @@ export function TaskUpdateForm({
 
 export function AssessmentCreateForm({
   courses,
-  sourcePath,
+  onCreate,
+  fixedCourseId,
 }: {
   courses: CourseOption[];
-  sourcePath: string;
+  onCreate: (payload: {
+    title: string;
+    type: AssessmentType;
+    dueAt: string;
+    weight: number | null;
+    status: AssessmentStatus;
+    courseId: string;
+  }) => void;
+  fixedCourseId?: string;
 }) {
   return (
-    <form action={createAssessment} className="grid gap-4 md:grid-cols-2">
-      <input name="sourcePath" type="hidden" value={sourcePath} />
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onCreate({
+          title: String(data.get("title") || "").trim(),
+          type: String(data.get("type") || "ASSIGNMENT") as AssessmentType,
+          dueAt: String(data.get("dueAt") || ""),
+          weight: Number(data.get("weight")) || null,
+          status: String(data.get("status") || "PENDING") as AssessmentStatus,
+          courseId: fixedCourseId || String(data.get("courseId") || ""),
+        });
+        resetIfCreate(event.currentTarget, true);
+      }}
+      className="grid gap-4 md:grid-cols-2"
+    >
       <Field label="Assessment title">
         <Input name="title" placeholder="Linked List Assignment" required />
       </Field>
-      <Field label="Course">
-        <Select name="courseId" required>
-          {courses.map((course) => (
-            <option key={course.id} value={course.id}>
-              {course.code} · {course.name}
-            </option>
-          ))}
-        </Select>
-      </Field>
+      {!fixedCourseId ? (
+        <Field label="Course">
+          <Select name="courseId" required defaultValue={courses[0]?.id || ""}>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.code} · {course.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      ) : null}
       <Field label="Type">
         <Select name="type" defaultValue="ASSIGNMENT">
           {assessmentTypeOptions.map((option) => (
@@ -437,24 +618,40 @@ export function AssessmentCreateForm({
 export function AssessmentUpdateForm({
   assessment,
   courses,
-  sourcePath,
+  onUpdate,
+  onDelete,
 }: {
-  assessment: {
-    id: string;
-    title: string;
-    type: string;
-    dueAt: Date;
-    weight: number | null;
-    status: string;
-    courseId: string;
-  };
+  assessment: Pick<Assessment, "id" | "title" | "type" | "dueAt" | "weight" | "status" | "courseId">;
   courses: CourseOption[];
-  sourcePath: string;
+  onUpdate: (
+    assessmentId: string,
+    payload: {
+      title: string;
+      type: AssessmentType;
+      dueAt: string;
+      weight: number | null;
+      status: AssessmentStatus;
+      courseId: string;
+    },
+  ) => void;
+  onDelete: (assessmentId: string) => void;
 }) {
   return (
-    <form action={updateAssessment} className="grid gap-3 md:grid-cols-3">
-      <input name="assessmentId" type="hidden" value={assessment.id} />
-      <input name="sourcePath" type="hidden" value={sourcePath} />
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onUpdate(assessment.id, {
+          title: String(data.get("title") || "").trim(),
+          type: String(data.get("type") || "ASSIGNMENT") as AssessmentType,
+          dueAt: String(data.get("dueAt") || ""),
+          weight: Number(data.get("weight")) || null,
+          status: String(data.get("status") || "PENDING") as AssessmentStatus,
+          courseId: String(data.get("courseId") || ""),
+        });
+      }}
+      className="grid gap-3 md:grid-cols-3"
+    >
       <Input name="title" defaultValue={assessment.title} />
       <Select name="courseId" defaultValue={assessment.courseId}>
         {courses.map((course) => (
@@ -481,7 +678,7 @@ export function AssessmentUpdateForm({
       <Input name="weight" type="number" defaultValue={assessment.weight ?? ""} min="0" max="100" />
       <div className="md:col-span-3 flex gap-3">
         <Button type="submit">Save</Button>
-        <Button type="submit" formAction={deleteAssessment} tone="danger">
+        <Button type="button" tone="danger" onClick={() => onDelete(assessment.id)}>
           Delete
         </Button>
       </div>
@@ -489,11 +686,41 @@ export function AssessmentUpdateForm({
   );
 }
 
-export function FileUploadForm({ courseId, sourcePath }: { courseId: string; sourcePath: string }) {
+export function FileUploadForm({
+  courseId,
+  onUpload,
+}: {
+  courseId: string;
+  onUpload: (payload: { title: string; fileCategory: FileCategory; file: File }) => Promise<void>;
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+
   return (
-    <form action={uploadCourseFile} className="grid gap-4 md:grid-cols-2">
-      <input name="courseId" type="hidden" value={courseId} />
-      <input name="sourcePath" type="hidden" value={sourcePath} />
+    <form
+      onSubmit={async (event) => {
+        event.preventDefault();
+        const data = formData(event);
+        const file = data.get("file");
+
+        if (!(file instanceof File) || file.size === 0) {
+          return;
+        }
+
+        setIsUploading(true);
+        try {
+          await onUpload({
+            title: String(data.get("title") || "").trim(),
+            fileCategory: String(data.get("fileCategory") || "LECTURE_NOTE") as FileCategory,
+            file,
+          });
+          event.currentTarget.reset();
+        } finally {
+          setIsUploading(false);
+        }
+      }}
+      className="grid gap-4 md:grid-cols-2"
+    >
+      <input type="hidden" name="courseId" value={courseId} />
       <Field label="File title">
         <Input name="title" placeholder="Week 3 Lecture Notes" required />
       </Field>
@@ -507,23 +734,32 @@ export function FileUploadForm({ courseId, sourcePath }: { courseId: string; sou
         </Select>
       </Field>
       <Field label="Choose file">
-        <Input name="file" type="file" required className="file:mr-4 file:rounded-full file:border-0 file:bg-stone-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white" />
+        <Input
+          name="file"
+          type="file"
+          required
+          className="file:mr-4 file:rounded-full file:border-0 file:bg-stone-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+        />
       </Field>
       <div className="md:col-span-2">
-        <Button type="submit">Upload file</Button>
+        <Button type="submit" disabled={isUploading}>
+          {isUploading ? "Saving file..." : "Upload file"}
+        </Button>
       </div>
     </form>
   );
 }
 
-export function FileDeleteForm({ fileId, sourcePath }: { fileId: string; sourcePath: string }) {
+export function FileDeleteForm({
+  fileId,
+  onDelete,
+}: {
+  fileId: string;
+  onDelete: (fileId: string) => void;
+}) {
   return (
-    <form action={deleteCourseFile}>
-      <input name="fileId" type="hidden" value={fileId} />
-      <input name="sourcePath" type="hidden" value={sourcePath} />
-      <Button type="submit" tone="danger">
-        Delete
-      </Button>
-    </form>
+    <Button type="button" tone="danger" onClick={() => onDelete(fileId)}>
+      Delete
+    </Button>
   );
 }
