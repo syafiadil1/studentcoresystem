@@ -161,3 +161,67 @@ export function Badge({
     </span>
   );
 }
+
+export function DetailModal({
+  open,
+  title,
+  subtitle,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  title: string;
+  subtitle?: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/45 px-4 py-6 backdrop-blur-sm"
+      onClick={onClose}
+      role="presentation"
+    >
+      <div
+        className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-[30px] border border-stone-200 bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(20,16,12,0.22)]"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-stone-200 pb-4">
+          <div>
+            <h3 className="text-2xl font-semibold tracking-tight text-stone-900">{title}</h3>
+            {subtitle ? <p className="mt-2 text-sm text-stone-600">{subtitle}</p> : null}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full bg-stone-100 px-3 py-2 text-sm font-medium text-stone-700"
+          >
+            Close
+          </button>
+        </div>
+        <div className="mt-5 space-y-4">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+export function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white/80 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{label}</p>
+      <div className="mt-2 text-sm leading-6 text-stone-800">{value}</div>
+    </div>
+  );
+}

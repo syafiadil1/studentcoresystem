@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useStudentCore } from "@/components/student-core-provider";
 import { assessmentStatusOptions, assessmentTypeOptions } from "@/lib/constants";
 import { AssessmentCreateForm, AssessmentUpdateForm } from "@/components/forms";
-import { Badge, EmptyState, Section } from "@/components/ui";
+import { Badge, DetailModal, DetailRow, EmptyState, Section } from "@/components/ui";
 import { getAssessmentPageData } from "@/lib/local-data";
 import { formatDateTime, titleCase } from "@/lib/utils";
 
@@ -13,6 +13,8 @@ export default function AssessmentsPage() {
   const [courseId, setCourseId] = useState("");
   const [status, setStatus] = useState("");
   const [type, setType] = useState("");
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const data = getAssessmentPageData(state, {
     courseId: courseId || undefined,
     status: status || undefined,
@@ -23,6 +25,8 @@ export default function AssessmentsPage() {
     code: course.code,
     name: course.name,
   }));
+  const selectedAssessment =
+    data.assessments.find((assessment) => assessment.id === selectedAssessmentId) ?? null;
 
   return (
     <div className="space-y-6">
@@ -92,7 +96,13 @@ export default function AssessmentsPage() {
             <div className="space-y-4">
               {data.assessments.map((assessment) => (
                 <div key={assessment.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                  <div
+                    className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl transition hover:bg-stone-50/80"
+                    onClick={() => {
+                      setSelectedAssessmentId(assessment.id);
+                      setEditing(false);
+                    }}
+                  >
                     <div>
                       <h3 className="font-semibold text-stone-900">{assessment.title}</h3>
                       <p className="text-sm text-stone-600">{assessment.course.name}</p>
@@ -120,6 +130,43 @@ export default function AssessmentsPage() {
           )}
         </Section>
       )}
+
+      <DetailModal
+        open={Boolean(selectedAssessment)}
+        title={selectedAssessment?.title || ""}
+        subtitle={selectedAssessment?.course.name || ""}
+        onClose={() => {
+          setSelectedAssessmentId(null);
+          setEditing(false);
+        }}
+      >
+        {selectedAssessment ? (
+          <>
+            {!editing ? (
+              <>
+                <DetailRow label="Type" value={titleCase(selectedAssessment.type)} />
+                <DetailRow label="Status" value={titleCase(selectedAssessment.status)} />
+                <DetailRow label="Due" value={formatDateTime(selectedAssessment.dueAt)} />
+                <DetailRow label="Weight" value={selectedAssessment.weight ? `${selectedAssessment.weight}%` : "Not set"} />
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                >
+                  Edit assessment
+                </button>
+              </>
+            ) : (
+              <AssessmentUpdateForm
+                assessment={selectedAssessment}
+                courses={courseOptions}
+                onUpdate={updateAssessment}
+                onDelete={deleteAssessment}
+              />
+            )}
+          </>
+        ) : null}
+      </DetailModal>
     </div>
   );
 }

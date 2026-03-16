@@ -1,15 +1,66 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Plus, RotateCcw } from "lucide-react";
 import { useStudentCore } from "@/components/student-core-provider";
-import { Badge, Button, EmptyState, Section, StatCard } from "@/components/ui";
+import { AssessmentUpdateForm, SessionUpdateForm, TaskUpdateForm } from "@/components/forms";
+import { Badge, Button, DetailModal, DetailRow, EmptyState, Section, StatCard } from "@/components/ui";
 import { getDashboardData } from "@/lib/local-data";
 import { describeDeadline, formatDateTime, titleCase } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const { hydrated, state, resetWorkspace } = useStudentCore();
+  const {
+    hydrated,
+    state,
+    resetWorkspace,
+    updateSession,
+    deleteSession,
+    updateTask,
+    deleteTask,
+    updateAssessment,
+    deleteAssessment,
+  } = useStudentCore();
   const data = getDashboardData(state);
+  const courseOptions = state.courses.map((course) => ({
+    id: course.id,
+    code: course.code,
+    name: course.name,
+  }));
+  const [selectedItem, setSelectedItem] = useState<
+    | { kind: "class"; id: string }
+    | { kind: "task"; id: string }
+    | { kind: "assessment"; id: string }
+    | null
+  >(null);
+  const [editing, setEditing] = useState(false);
+
+  const selectedClassCard =
+    selectedItem?.kind === "class"
+      ? data.todayClasses.find((item) => item.id === selectedItem.id) ?? null
+      : null;
+  const selectedClass =
+    selectedItem?.kind === "class"
+      ? state.sessions.find((session) => session.id === selectedItem.id) ?? null
+      : null;
+  const selectedTask =
+    selectedItem?.kind === "task"
+      ? state.tasks.find((item) => item.id === selectedItem.id) ?? null
+      : null;
+  const selectedAssessmentCard =
+    selectedItem?.kind === "assessment"
+      ? data.upcomingAssessments.find((item) => item.id === selectedItem.id) ?? null
+      : null;
+  const selectedAssessment =
+    selectedItem?.kind === "assessment"
+      ? state.assessments.find((item) => item.id === selectedItem.id) ?? null
+      : null;
+  const selectedTaskCourse = selectedTask
+    ? state.courses.find((course) => course.id === selectedTask.courseId)
+    : null;
+  const selectedAssessmentCourse = selectedAssessment
+    ? state.courses.find((course) => course.id === selectedAssessment.courseId)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -72,7 +123,11 @@ export default function DashboardPage() {
                   {data.todayClasses.map((session) => (
                     <div
                       key={session.id}
-                      className="rounded-3xl border border-stone-200 bg-white/70 p-4"
+                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
+                      onClick={() => {
+                        setSelectedItem({ kind: "class", id: session.id });
+                        setEditing(false);
+                      }}
                     >
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div className="flex items-center gap-4">
@@ -113,7 +168,14 @@ export default function DashboardPage() {
               {data.upcomingAssessments.length ? (
                 <div className="space-y-3">
                   {data.upcomingAssessments.map((item) => (
-                    <div key={item.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                    <div
+                      key={item.id}
+                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
+                      onClick={() => {
+                        setSelectedItem({ kind: "assessment", id: item.id });
+                        setEditing(false);
+                      }}
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <h3 className="font-semibold text-stone-900">{item.title}</h3>
@@ -139,7 +201,14 @@ export default function DashboardPage() {
               {data.overdueTasks.length ? (
                 <div className="space-y-3">
                   {data.overdueTasks.map((task) => (
-                    <div key={task.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                    <div
+                      key={task.id}
+                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
+                      onClick={() => {
+                        setSelectedItem({ kind: "task", id: task.id });
+                        setEditing(false);
+                      }}
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <h3 className="font-semibold text-stone-900">{task.title}</h3>
@@ -166,7 +235,14 @@ export default function DashboardPage() {
               {data.dueSoonTasks.length ? (
                 <div className="space-y-3">
                   {data.dueSoonTasks.map((task) => (
-                    <div key={task.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                    <div
+                      key={task.id}
+                      className="cursor-pointer rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:-translate-y-0.5 hover:border-stone-400"
+                      onClick={() => {
+                        setSelectedItem({ kind: "task", id: task.id });
+                        setEditing(false);
+                      }}
+                    >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <h3 className="font-semibold text-stone-900">{task.title}</h3>
@@ -194,6 +270,131 @@ export default function DashboardPage() {
           </div>
         </>
       )}
+
+      <DetailModal
+        open={Boolean(selectedClassCard && selectedClass)}
+        title={selectedClassCard?.courseName || ""}
+        subtitle={selectedClassCard ? `${selectedClassCard.courseCode} · ${titleCase(selectedClassCard.sessionType)}` : ""}
+        onClose={() => {
+          setSelectedItem(null);
+          setEditing(false);
+        }}
+      >
+        {selectedClassCard && selectedClass ? (
+          <>
+            {!editing ? (
+              <>
+                <DetailRow label="Time" value={`${selectedClassCard.startTime} - ${selectedClassCard.endTime}`} />
+                <DetailRow label="Location" value={selectedClassCard.location} />
+                <DetailRow label="Course" value={selectedClassCard.courseCode} />
+                <Button type="button" onClick={() => setEditing(true)}>
+                  Edit class
+                </Button>
+              </>
+            ) : (
+              <SessionUpdateForm
+                session={selectedClass}
+                onUpdate={(sessionId, payload) => {
+                  updateSession(sessionId, payload);
+                  setEditing(false);
+                }}
+                onDelete={(sessionId) => {
+                  deleteSession(sessionId);
+                  setSelectedItem(null);
+                  setEditing(false);
+                }}
+              />
+            )}
+          </>
+        ) : null}
+      </DetailModal>
+
+      <DetailModal
+        open={Boolean(selectedTask)}
+        title={selectedTask?.title || ""}
+        subtitle={selectedTaskCourse?.name || "General task"}
+        onClose={() => {
+          setSelectedItem(null);
+          setEditing(false);
+        }}
+      >
+        {selectedTask ? (
+          <>
+            {!editing ? (
+              <>
+                <DetailRow label="Status" value={titleCase(selectedTask.status)} />
+                <DetailRow label="Priority" value={titleCase(selectedTask.priority)} />
+                <DetailRow label="Category" value={titleCase(selectedTask.category)} />
+                <DetailRow
+                  label="Due"
+                  value={selectedTask.dueAt ? `${formatDateTime(selectedTask.dueAt)} · ${describeDeadline(selectedTask.dueAt)}` : "No due date"}
+                />
+                <DetailRow label="Description" value={selectedTask.description || "No description"} />
+                <Button type="button" onClick={() => setEditing(true)}>
+                  Edit task
+                </Button>
+              </>
+            ) : (
+              <TaskUpdateForm
+                task={selectedTask}
+                courses={courseOptions}
+                onUpdate={(taskId, payload) => {
+                  updateTask(taskId, payload);
+                  setEditing(false);
+                }}
+                onDelete={(taskId) => {
+                  deleteTask(taskId);
+                  setSelectedItem(null);
+                  setEditing(false);
+                }}
+              />
+            )}
+          </>
+        ) : null}
+      </DetailModal>
+
+      <DetailModal
+        open={Boolean(selectedAssessment && selectedAssessmentCard)}
+        title={selectedAssessment?.title || ""}
+        subtitle={selectedAssessmentCourse?.name || selectedAssessmentCard?.courseName || ""}
+        onClose={() => {
+          setSelectedItem(null);
+          setEditing(false);
+        }}
+      >
+        {selectedAssessment && selectedAssessmentCard ? (
+          <>
+            {!editing ? (
+              <>
+                <DetailRow label="Type" value={titleCase(selectedAssessment.type)} />
+                <DetailRow label="Status" value={titleCase(selectedAssessment.status)} />
+                <DetailRow label="Due" value={formatDateTime(selectedAssessment.dueAt)} />
+                <DetailRow
+                  label="Weight"
+                  value={selectedAssessment.weight ? `${selectedAssessment.weight}%` : "Not set"}
+                />
+                <Button type="button" onClick={() => setEditing(true)}>
+                  Edit assessment
+                </Button>
+              </>
+            ) : (
+              <AssessmentUpdateForm
+                assessment={selectedAssessment}
+                courses={courseOptions}
+                onUpdate={(assessmentId, payload) => {
+                  updateAssessment(assessmentId, payload);
+                  setEditing(false);
+                }}
+                onDelete={(assessmentId) => {
+                  deleteAssessment(assessmentId);
+                  setSelectedItem(null);
+                  setEditing(false);
+                }}
+              />
+            )}
+          </>
+        ) : null}
+      </DetailModal>
     </div>
   );
 }

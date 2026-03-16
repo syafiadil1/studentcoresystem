@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useStudentCore } from "@/components/student-core-provider";
 import { taskStatusOptions } from "@/lib/constants";
 import { TaskCreateForm, TaskUpdateForm } from "@/components/forms";
-import { Badge, EmptyState, Section } from "@/components/ui";
+import { Badge, DetailModal, DetailRow, EmptyState, Section } from "@/components/ui";
 import { getTaskPageData } from "@/lib/local-data";
 import { describeDeadline, formatDateTime, titleCase } from "@/lib/utils";
 
@@ -12,12 +12,15 @@ export default function TasksPage() {
   const { hydrated, state, createTask, updateTask, deleteTask } = useStudentCore();
   const [courseId, setCourseId] = useState("");
   const [status, setStatus] = useState("");
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const data = getTaskPageData(state, { courseId: courseId || undefined, status: status || undefined });
   const courseOptions = data.courses.map((course) => ({
     id: course.id,
     code: course.code,
     name: course.name,
   }));
+  const selectedTask = data.tasks.find((task) => task.id === selectedTaskId) ?? null;
 
   return (
     <div className="space-y-6">
@@ -70,7 +73,13 @@ export default function TasksPage() {
             <div className="space-y-4">
               {data.tasks.map((task) => (
                 <div key={task.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                  <div
+                    className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl transition hover:bg-stone-50/80"
+                    onClick={() => {
+                      setSelectedTaskId(task.id);
+                      setEditing(false);
+                    }}
+                  >
                     <div>
                       <h3 className="font-semibold text-stone-900">{task.title}</h3>
                       <p className="text-sm text-stone-600">{task.course?.name || "General task"}</p>
@@ -94,6 +103,42 @@ export default function TasksPage() {
           )}
         </Section>
       )}
+
+      <DetailModal
+        open={Boolean(selectedTask)}
+        title={selectedTask?.title || ""}
+        subtitle={selectedTask?.course?.name || "General task"}
+        onClose={() => {
+          setSelectedTaskId(null);
+          setEditing(false);
+        }}
+      >
+        {selectedTask ? (
+          <>
+            {!editing ? (
+              <>
+                <DetailRow label="Status" value={titleCase(selectedTask.status)} />
+                <DetailRow label="Priority" value={titleCase(selectedTask.priority)} />
+                <DetailRow label="Category" value={titleCase(selectedTask.category)} />
+                <DetailRow
+                  label="Due"
+                  value={selectedTask.dueAt ? `${formatDateTime(selectedTask.dueAt)} · ${describeDeadline(selectedTask.dueAt)}` : "No due date"}
+                />
+                <DetailRow label="Description" value={selectedTask.description || "No description"} />
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                >
+                  Edit task
+                </button>
+              </>
+            ) : (
+              <TaskUpdateForm task={selectedTask} courses={courseOptions} onUpdate={updateTask} onDelete={deleteTask} />
+            )}
+          </>
+        ) : null}
+      </DetailModal>
     </div>
   );
 }
