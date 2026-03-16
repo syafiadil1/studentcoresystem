@@ -1,5 +1,13 @@
 import { DayOfWeek, Prisma } from "@prisma/client";
 import { isAfter, isBefore, startOfToday } from "date-fns";
+import {
+  getDemoAssessmentPageData,
+  getDemoCourseDetail,
+  getDemoCoursesPageData,
+  getDemoDashboardSource,
+  getDemoTaskPageData,
+  getDemoTimetableData,
+} from "@/lib/demo-data";
 import { prisma } from "@/lib/prisma";
 import type { TodayClassCard, UpcomingDeadlineItem } from "@/lib/types";
 
@@ -8,6 +16,8 @@ const dashboardCourseInclude = {
     course: true,
   },
 } satisfies Prisma.ClassSessionDefaultArgs;
+
+const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
 
 export async function getDashboardData() {
   const today = startOfToday();
@@ -22,25 +32,36 @@ export async function getDashboardData() {
     DayOfWeek.SUNDAY,
   ][dayIndex];
 
-  const [todaySessions, tasks, assessments] = await Promise.all([
-    prisma.classSession.findMany({
-      ...dashboardCourseInclude,
-      where: {
-        dayOfWeek: todayName,
-      },
-      orderBy: {
-        startTime: "asc",
-      },
-    }),
-    prisma.taskItem.findMany({
-      include: { course: true },
-      orderBy: [{ dueAt: "asc" }, { createdAt: "desc" }],
-    }),
-    prisma.assessment.findMany({
-      include: { course: true },
-      orderBy: { dueAt: "asc" },
-    }),
-  ]);
+  const source = hasDatabaseUrl
+    ? await Promise.all([
+        prisma.classSession.findMany({
+          ...dashboardCourseInclude,
+          where: {
+            dayOfWeek: todayName,
+          },
+          orderBy: {
+            startTime: "asc",
+          },
+        }),
+        prisma.taskItem.findMany({
+          include: { course: true },
+          orderBy: [{ dueAt: "asc" }, { createdAt: "desc" }],
+        }),
+        prisma.assessment.findMany({
+          include: { course: true },
+          orderBy: { dueAt: "asc" },
+        }),
+      ])
+    : (() => {
+        const demo = getDemoDashboardSource();
+        return [
+          demo.sessions.filter((session) => session.dayOfWeek === todayName),
+          demo.tasks,
+          demo.assessments,
+        ] as const;
+      })();
+
+  const [todaySessions, tasks, assessments] = source;
 
   const todayClasses: TodayClassCard[] = todaySessions.map((session) => ({
     id: session.id,
@@ -88,6 +109,10 @@ export async function getDashboardData() {
 }
 
 export async function getCoursesPageData() {
+  if (!hasDatabaseUrl) {
+    return getDemoCoursesPageData();
+  }
+
   return prisma.semester.findMany({
     include: {
       courses: {
@@ -107,6 +132,10 @@ export async function getCoursesPageData() {
 }
 
 export async function getCourseDetail(courseId: string) {
+  if (!hasDatabaseUrl) {
+    return getDemoCourseDetail(courseId);
+  }
+
   return prisma.course.findUnique({
     where: { id: courseId },
     include: {
@@ -128,6 +157,10 @@ export async function getCourseDetail(courseId: string) {
 }
 
 export async function getTimetableData() {
+  if (!hasDatabaseUrl) {
+    return getDemoTimetableData();
+  }
+
   return prisma.classSession.findMany({
     include: { course: true },
     orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
@@ -138,6 +171,10 @@ export async function getTaskPageData(filters: {
   courseId?: string;
   status?: string;
 }) {
+  if (!hasDatabaseUrl) {
+    return getDemoTaskPageData(filters);
+  }
+
   const [courses, tasks] = await Promise.all([
     prisma.course.findMany({
       orderBy: { code: "asc" },
@@ -162,6 +199,10 @@ export async function getAssessmentPageData(filters: {
   status?: string;
   type?: string;
 }) {
+  if (!hasDatabaseUrl) {
+    return getDemoAssessmentPageData(filters);
+  }
+
   const [courses, assessments] = await Promise.all([
     prisma.course.findMany({
       orderBy: { code: "asc" },
