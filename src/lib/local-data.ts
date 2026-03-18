@@ -142,6 +142,10 @@ export function getResultsPageData(state: StudentCoreState) {
     semesters: state.semesters.slice().sort((a, b) => Number(b.isActive) - Number(a.isActive)),
     results,
     summaries,
+    resultsBySemester: state.semesters.reduce<Record<string, typeof results>>((acc, semester) => {
+      acc[semester.id] = results.filter((result) => result.semester?.id === semester.id);
+      return acc;
+    }, {}),
     cgpa,
     totalCredits,
   };

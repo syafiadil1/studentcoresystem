@@ -46,3 +46,7 @@ export function bytesToSize(bytes: number) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+export function normalizeSearch(value: string) {
+  return value.trim().toLowerCase();
+}
