@@ -98,7 +98,6 @@ export default function ResultsPage() {
                     </div>
                     <p className="mt-3 text-sm text-stone-700">
                       Grade point {result.gradePoint.toFixed(2)} · {result.creditHours} credits
-                      {result.score !== null ? ` · ${result.score}%` : ""}
                     </p>
                   </div>
                   {selectedResultId === result.id ? (
@@ -109,7 +108,7 @@ export default function ResultsPage() {
                             <DetailRow label="Grade" value={result.grade} />
                             <DetailRow label="Grade Point" value={result.gradePoint.toFixed(2)} />
                             <DetailRow label="Credits" value={result.creditHours} />
-                            <DetailRow label="Score" value={result.score !== null ? `${result.score}%` : "Not set"} />
+                            <DetailRow label="Status" value={titleCase(result.status)} />
                           </div>
                           <DetailRow label="Notes" value={result.notes || "No notes"} />
                           <div className="flex gap-3">

@@ -247,7 +247,7 @@ export default function CourseDetailPage() {
               </div>
             ))
           ) : (
-            <EmptyState title="No result records yet" copy="Add final grades, score, and credit hours for this course." />
+            <EmptyState title="No result records yet" copy="Add final grades and credit hours for this course." />
           )}
         </div>
       </Section>

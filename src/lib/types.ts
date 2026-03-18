@@ -112,7 +112,6 @@ export type CourseResult = {
   semesterId: string;
   title: string;
   creditHours: number;
-  score: number | null;
   grade: LetterGrade;
   gradePoint: number;
   status: ResultStatus;

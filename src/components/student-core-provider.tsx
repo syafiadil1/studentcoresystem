@@ -140,7 +140,18 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
     try {
       const raw = window.localStorage.getItem(studentCoreStorageKey);
       if (raw) {
-        setState(JSON.parse(raw) as StudentCoreState);
+        const parsed = JSON.parse(raw) as Partial<StudentCoreState>;
+        setState({
+          ...emptyState,
+          ...parsed,
+          semesters: Array.isArray(parsed.semesters) ? parsed.semesters : [],
+          courses: Array.isArray(parsed.courses) ? parsed.courses : [],
+          sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+          tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
+          assessments: Array.isArray(parsed.assessments) ? parsed.assessments : [],
+          files: Array.isArray(parsed.files) ? parsed.files : [],
+          results: Array.isArray(parsed.results) ? parsed.results : [],
+        });
       }
     } catch {
       window.localStorage.removeItem(studentCoreStorageKey);
@@ -370,6 +381,12 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
 
         setState({
           ...nextState,
+          semesters: Array.isArray(nextState.semesters) ? nextState.semesters : [],
+          courses: Array.isArray(nextState.courses) ? nextState.courses : [],
+          sessions: Array.isArray(nextState.sessions) ? nextState.sessions : [],
+          tasks: Array.isArray(nextState.tasks) ? nextState.tasks : [],
+          assessments: Array.isArray(nextState.assessments) ? nextState.assessments : [],
+          files: Array.isArray(nextState.files) ? nextState.files : [],
           results: Array.isArray(nextState.results) ? nextState.results : [],
         });
       },

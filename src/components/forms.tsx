@@ -825,7 +825,6 @@ export function ResultCreateForm({
     semesterId: string;
     title: string;
     creditHours: number;
-    score: number | null;
     grade: LetterGrade;
     status: ResultStatus;
     notes: string;
@@ -841,7 +840,6 @@ export function ResultCreateForm({
           semesterId: String(data.get("semesterId") || ""),
           title: String(data.get("title") || "").trim(),
           creditHours: Number(data.get("creditHours")) || 0,
-          score: String(data.get("score") || "") ? Number(data.get("score")) : null,
           grade: String(data.get("grade") || "A") as LetterGrade,
           status: String(data.get("status") || "RELEASED") as ResultStatus,
           notes: String(data.get("notes") || "").trim(),
@@ -873,9 +871,6 @@ export function ResultCreateForm({
       </Field>
       <Field label="Credit hours">
         <Input name="creditHours" type="number" min="1" step="1" required />
-      </Field>
-      <Field label="Score">
-        <Input name="score" type="number" min="0" max="100" step="0.01" />
       </Field>
       <Field label="Grade">
         <Select name="grade" defaultValue="A">
@@ -912,7 +907,7 @@ export function ResultUpdateForm({
   onUpdate,
   onDelete,
 }: {
-  result: Pick<CourseResult, "id" | "courseId" | "semesterId" | "title" | "creditHours" | "score" | "grade" | "status" | "notes">;
+  result: Pick<CourseResult, "id" | "courseId" | "semesterId" | "title" | "creditHours" | "grade" | "status" | "notes">;
   courses: CourseOption[];
   semesters: SemesterOption[];
   onUpdate: (
@@ -922,7 +917,6 @@ export function ResultUpdateForm({
       semesterId: string;
       title: string;
       creditHours: number;
-      score: number | null;
       grade: LetterGrade;
       status: ResultStatus;
       notes: string;
@@ -940,7 +934,6 @@ export function ResultUpdateForm({
           semesterId: String(data.get("semesterId") || ""),
           title: String(data.get("title") || "").trim(),
           creditHours: Number(data.get("creditHours")) || 0,
-          score: String(data.get("score") || "") ? Number(data.get("score")) : null,
           grade: String(data.get("grade") || "A") as LetterGrade,
           status: String(data.get("status") || "RELEASED") as ResultStatus,
           notes: String(data.get("notes") || "").trim(),
@@ -964,7 +957,6 @@ export function ResultUpdateForm({
         ))}
       </Select>
       <Input name="creditHours" type="number" min="1" step="1" defaultValue={result.creditHours} />
-      <Input name="score" type="number" min="0" max="100" step="0.01" defaultValue={result.score ?? ""} />
       <Select name="grade" defaultValue={result.grade}>
         {letterGradeOptions.map((grade) => (
           <option key={grade} value={grade}>

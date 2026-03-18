@@ -98,10 +98,11 @@ export function getDashboardData(state: StudentCoreState) {
 }
 
 export function getResultsPageData(state: StudentCoreState) {
+  const resultsSource = state.results ?? [];
   const semesterMap = getSemesterMap(state.semesters);
   const courseMap = getCourseMap(state.courses);
 
-  const results = state.results
+  const results = resultsSource
     .slice()
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .map((result) => ({
@@ -112,7 +113,7 @@ export function getResultsPageData(state: StudentCoreState) {
 
   const summaries = state.semesters
     .map<SemesterResultSummary>((semester) => {
-      const semesterResults = state.results.filter((result) => result.semesterId === semester.id);
+      const semesterResults = resultsSource.filter((result) => result.semesterId === semester.id);
       const totalCredits = semesterResults.reduce((sum, result) => sum + result.creditHours, 0);
       const weightedGradePoints = semesterResults.reduce(
         (sum, result) => sum + result.gradePoint * result.creditHours,
@@ -147,6 +148,7 @@ export function getResultsPageData(state: StudentCoreState) {
 }
 
 export function getCoursesPageData(state: StudentCoreState) {
+  const results = state.results ?? [];
   return state.semesters
     .slice()
     .sort((a, b) => Number(b.isActive) - Number(a.isActive) || b.startDate.localeCompare(a.startDate))
@@ -161,12 +163,13 @@ export function getCoursesPageData(state: StudentCoreState) {
           tasks: state.tasks.filter((task) => task.courseId === course.id),
           assessments: state.assessments.filter((assessment) => assessment.courseId === course.id),
           files: state.files.filter((file) => file.courseId === course.id),
-          results: state.results.filter((result) => result.courseId === course.id),
+          results: results.filter((result) => result.courseId === course.id),
         })),
     }));
 }
 
 export function getCourseDetail(state: StudentCoreState, courseId: string) {
+  const results = state.results ?? [];
   const course = state.courses.find((entry) => entry.id === courseId);
 
   if (!course) {
@@ -190,7 +193,7 @@ export function getCourseDetail(state: StudentCoreState, courseId: string) {
     files: state.files
       .filter((file) => file.courseId === course.id)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    results: state.results
+    results: results
       .filter((result) => result.courseId === course.id)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   };
