@@ -1,4 +1,5 @@
 import { isAfter, isBefore, startOfToday } from "date-fns";
+import { differenceInCalendarDays } from "date-fns";
 import { dayOrder } from "@/lib/constants";
 import type {
   Course,
@@ -71,7 +72,28 @@ export function getDashboardData(state: StudentCoreState) {
       status: assessment.status,
     }));
 
-  return { todayClasses, taskSummary, overdueTasks, dueSoonTasks, upcomingAssessments };
+  const activeSemester = state.semesters.find((semester) => semester.isActive) || null;
+  const activeSemesterSummary = activeSemester
+    ? (() => {
+        const totalDays = Math.max(
+          differenceInCalendarDays(new Date(activeSemester.endDate), new Date(activeSemester.startDate)),
+          1,
+        );
+        const elapsedDays = Math.min(
+          Math.max(differenceInCalendarDays(new Date(), new Date(activeSemester.startDate)), 0),
+          totalDays,
+        );
+        return {
+          ...activeSemester,
+          totalDays,
+          elapsedDays,
+          remainingDays: Math.max(totalDays - elapsedDays, 0),
+          progressPercent: Math.round((elapsedDays / totalDays) * 100),
+        };
+      })()
+    : null;
+
+  return { todayClasses, taskSummary, overdueTasks, dueSoonTasks, upcomingAssessments, activeSemesterSummary };
 }
 
 export function getCoursesPageData(state: StudentCoreState) {

@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useStudentCore } from "@/components/student-core-provider";
-import { CourseCreateForm, SemesterCreateForm, SemesterDeleteForm } from "@/components/forms";
-import { Badge, EmptyState, Section } from "@/components/ui";
+import { CourseCreateForm, SemesterCreateForm, SemesterDeleteForm, SemesterUpdateForm } from "@/components/forms";
+import { Badge, Button, EmptyState, Section } from "@/components/ui";
 import { getCoursesPageData } from "@/lib/local-data";
 import { formatDate } from "@/lib/utils";
 
 export default function CoursesPage() {
-  const { hydrated, state, createSemester, deleteSemester, createCourse } = useStudentCore();
+  const { hydrated, state, createSemester, updateSemester, deleteSemester, createCourse } = useStudentCore();
+  const [expandedSemesterId, setExpandedSemesterId] = useState<string | null>(null);
   const semesters = getCoursesPageData(state);
   const semesterOptions = semesters.map((semester) => ({
     id: semester.id,
@@ -50,8 +52,24 @@ export default function CoursesPage() {
                         {formatDate(semester.startDate)} - {formatDate(semester.endDate)}
                       </p>
                     </div>
-                    <SemesterDeleteForm semesterId={semester.id} onDelete={deleteSemester} />
+                    <div className="flex gap-3">
+                      <Button
+                        type="button"
+                        tone="secondary"
+                        onClick={() =>
+                          setExpandedSemesterId((current) => (current === semester.id ? null : semester.id))
+                        }
+                      >
+                        {expandedSemesterId === semester.id ? "Hide edit" : "Edit semester"}
+                      </Button>
+                      <SemesterDeleteForm semesterId={semester.id} onDelete={deleteSemester} />
+                    </div>
                   </div>
+                  {expandedSemesterId === semester.id ? (
+                    <div className="mt-4">
+                      <SemesterUpdateForm semester={semester} onUpdate={updateSemester} />
+                    </div>
+                  ) : null}
 
                   {semester.courses.length ? (
                     <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

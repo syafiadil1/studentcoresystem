@@ -95,6 +95,50 @@ export function SemesterDeleteForm({
   );
 }
 
+export function SemesterUpdateForm({
+  semester,
+  onUpdate,
+}: {
+  semester: Pick<Semester, "id" | "name" | "startDate" | "endDate" | "isActive">;
+  onUpdate: (
+    semesterId: string,
+    payload: { name: string; startDate: string; endDate: string; isActive: boolean },
+  ) => void;
+}) {
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onUpdate(semester.id, {
+          name: String(data.get("name") || "").trim(),
+          startDate: String(data.get("startDate") || ""),
+          endDate: String(data.get("endDate") || ""),
+          isActive: data.get("isActive") === "on",
+        });
+      }}
+      className="grid gap-4 rounded-3xl border border-stone-200 bg-stone-50/80 p-4 md:grid-cols-2"
+    >
+      <Field label="Semester name">
+        <Input name="name" defaultValue={semester.name} required />
+      </Field>
+      <Field label="Start date">
+        <Input name="startDate" type="date" defaultValue={semester.startDate.slice(0, 10)} required />
+      </Field>
+      <Field label="End date">
+        <Input name="endDate" type="date" defaultValue={semester.endDate.slice(0, 10)} required />
+      </Field>
+      <label className="flex items-center gap-3 rounded-2xl border border-stone-300 px-4 py-3 text-sm text-stone-700">
+        <input name="isActive" type="checkbox" className="h-4 w-4" defaultChecked={semester.isActive} />
+        Set as active semester
+      </label>
+      <div className="md:col-span-2">
+        <Button type="submit">Save semester</Button>
+      </div>
+    </form>
+  );
+}
+
 export function CourseCreateForm({
   semesters,
   onCreate,

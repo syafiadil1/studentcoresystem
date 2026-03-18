@@ -45,6 +45,7 @@ type StudentCoreContextValue = {
   hydrated: boolean;
   state: StudentCoreState;
   createSemester: (input: CreateSemesterInput) => void;
+  updateSemester: (semesterId: string, input: CreateSemesterInput) => void;
   deleteSemester: (semesterId: string) => void;
   createCourse: (input: CreateCourseInput) => void;
   updateCourse: (courseId: string, input: CreateCourseInput) => void;
@@ -60,6 +61,8 @@ type StudentCoreContextValue = {
   deleteAssessment: (assessmentId: string) => void;
   uploadFile: (input: UploadFileInput) => Promise<void>;
   deleteFile: (fileId: string) => void;
+  exportWorkspace: () => void;
+  importWorkspace: (file: File) => Promise<void>;
   resetWorkspace: () => void;
 };
 
@@ -89,6 +92,15 @@ function readFileAsDataUrl(file: File) {
     reader.onload = () => resolve(String(reader.result || ""));
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
+  });
+}
+
+function readFileAsText(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
   });
 }
 
@@ -130,6 +142,20 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
           return {
             ...current,
             semesters: [...semesters, stamp(input)],
+          };
+        });
+      },
+      updateSemester(semesterId, input) {
+        setState((current) => {
+          const semesters = input.isActive
+            ? current.semesters.map((semester) => ({ ...semester, isActive: false }))
+            : current.semesters;
+
+          return {
+            ...current,
+            semesters: semesters.map((semester) =>
+              semester.id === semesterId ? touch(semester, input) : semester,
+            ),
           };
         });
       },
@@ -257,6 +283,42 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
           ...current,
           files: current.files.filter((file) => file.id !== fileId),
         }));
+      },
+      exportWorkspace() {
+        const payload = {
+          exportedAt: new Date().toISOString(),
+          app: "StudentCore",
+          version: 1,
+          state,
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `studentcore-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+      },
+      async importWorkspace(file) {
+        const raw = await readFileAsText(file);
+        const parsed = JSON.parse(raw) as { state?: StudentCoreState } | StudentCoreState;
+        const nextState = "state" in parsed && parsed.state ? parsed.state : (parsed as StudentCoreState);
+
+        if (
+          !nextState ||
+          !Array.isArray(nextState.semesters) ||
+          !Array.isArray(nextState.courses) ||
+          !Array.isArray(nextState.sessions) ||
+          !Array.isArray(nextState.tasks) ||
+          !Array.isArray(nextState.assessments) ||
+          !Array.isArray(nextState.files)
+        ) {
+          throw new Error("Invalid StudentCore backup file.");
+        }
+
+        setState(nextState);
       },
       resetWorkspace() {
         setState(emptyState);

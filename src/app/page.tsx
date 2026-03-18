@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { Plus, RotateCcw } from "lucide-react";
+import { Download, Plus, RotateCcw, Upload } from "lucide-react";
 import { useStudentCore } from "@/components/student-core-provider";
 import { AssessmentUpdateForm, SessionUpdateForm, TaskUpdateForm } from "@/components/forms";
 import { Badge, Button, DetailRow, EmptyState, Section, StatCard } from "@/components/ui";
@@ -20,8 +20,11 @@ export default function DashboardPage() {
     deleteTask,
     updateAssessment,
     deleteAssessment,
+    exportWorkspace,
+    importWorkspace,
   } = useStudentCore();
   const data = getDashboardData(state);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
   const courseOptions = state.courses.map((course) => ({
     id: course.id,
     code: course.code,
@@ -112,6 +115,87 @@ export default function DashboardPage() {
             <StatCard label="In Progress" value={data.taskSummary.inProgress} />
             <StatCard label="Done" value={data.taskSummary.done} tone="success" />
           </section>
+
+          <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+            <Section title="Workspace Tools" description="Backup or restore your StudentCore browser data.">
+              <div className="grid gap-4 md:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={exportWorkspace}
+                  className="rounded-3xl border border-stone-200 bg-white/80 p-5 text-left transition hover:border-stone-400"
+                >
+                  <Download className="h-5 w-5 text-stone-700" />
+                  <h3 className="mt-4 text-lg font-semibold text-stone-900">Export backup</h3>
+                  <p className="mt-2 text-sm text-stone-600">
+                    Download your full workspace as a JSON backup file.
+                  </p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => importInputRef.current?.click()}
+                  className="rounded-3xl border border-stone-200 bg-white/80 p-5 text-left transition hover:border-stone-400"
+                >
+                  <Upload className="h-5 w-5 text-stone-700" />
+                  <h3 className="mt-4 text-lg font-semibold text-stone-900">Import backup</h3>
+                  <p className="mt-2 text-sm text-stone-600">
+                    Restore a previously exported StudentCore workspace file.
+                  </p>
+                </button>
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept="application/json"
+                  className="hidden"
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      await importWorkspace(file);
+                    } catch {
+                      window.alert("Invalid StudentCore backup file.");
+                    } finally {
+                      event.target.value = "";
+                    }
+                  }}
+                />
+              </div>
+            </Section>
+
+            <Section title="Active Semester" description="See current semester progress at a glance.">
+              {data.activeSemesterSummary ? (
+                <div className="space-y-4">
+                  <div className="rounded-3xl border border-stone-200 bg-white/80 p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-2xl font-semibold text-stone-900">
+                          {data.activeSemesterSummary.name}
+                        </h3>
+                        <p className="mt-2 text-sm text-stone-600">
+                          {formatDateTime(data.activeSemesterSummary.startDate).slice(0, 11)} - {formatDateTime(data.activeSemesterSummary.endDate).slice(0, 11)}
+                        </p>
+                      </div>
+                      <Badge className="bg-[#d8ead9] text-[#27563c]">
+                        {data.activeSemesterSummary.progressPercent}% done
+                      </Badge>
+                    </div>
+                    <div className="mt-5 h-3 overflow-hidden rounded-full bg-stone-200">
+                      <div
+                        className="h-full rounded-full bg-stone-900"
+                        style={{ width: `${data.activeSemesterSummary.progressPercent}%` }}
+                      />
+                    </div>
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      <DetailRow label="Elapsed" value={`${data.activeSemesterSummary.elapsedDays} days`} />
+                      <DetailRow label="Remaining" value={`${data.activeSemesterSummary.remainingDays} days`} />
+                      <DetailRow label="Total" value={`${data.activeSemesterSummary.totalDays} days`} />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <EmptyState title="No active semester" copy="Set one semester as active to see progress here." />
+              )}
+            </Section>
+          </div>
 
           <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
             <Section title="Today's Classes" description="Sorted by time for the current day.">
