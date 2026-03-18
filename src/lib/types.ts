@@ -20,6 +20,20 @@ export type AssessmentType =
   | "PRESENTATION";
 export type AssessmentStatus = "PENDING" | "SUBMITTED" | "COMPLETED";
 export type FileCategory = "LECTURE_NOTE" | "TUTORIAL" | "ASSIGNMENT" | "PAST_YEAR" | "OTHER";
+export type ResultStatus = "EXPECTED" | "RELEASED";
+export type LetterGrade =
+  | "A+"
+  | "A"
+  | "A-"
+  | "B+"
+  | "B"
+  | "B-"
+  | "C+"
+  | "C"
+  | "C-"
+  | "D+"
+  | "D"
+  | "F";
 
 export type Semester = {
   id: string;
@@ -92,6 +106,21 @@ export type CourseFile = {
   updatedAt: string;
 };
 
+export type CourseResult = {
+  id: string;
+  courseId: string;
+  semesterId: string;
+  title: string;
+  creditHours: number;
+  score: number | null;
+  grade: LetterGrade;
+  gradePoint: number;
+  status: ResultStatus;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type StudentCoreState = {
   semesters: Semester[];
   courses: Course[];
@@ -99,6 +128,7 @@ export type StudentCoreState = {
   tasks: TaskItem[];
   assessments: Assessment[];
   files: CourseFile[];
+  results: CourseResult[];
 };
 
 export type TodayClassCard = {
@@ -119,4 +149,13 @@ export type UpcomingDeadlineItem = {
   courseName: string;
   dueAt: string;
   status: string;
+};
+
+export type SemesterResultSummary = {
+  semesterId: string;
+  semesterName: string;
+  totalCredits: number;
+  weightedGradePoints: number;
+  gpa: number;
+  resultsCount: number;
 };

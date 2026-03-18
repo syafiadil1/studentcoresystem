@@ -9,6 +9,8 @@ import {
   CourseUpdateForm,
   FileDeleteForm,
   FileUploadForm,
+  ResultCreateForm,
+  ResultUpdateForm,
   SessionCreateForm,
   SessionUpdateForm,
   TaskCreateForm,
@@ -35,6 +37,9 @@ export default function CourseDetailPage() {
     createAssessment,
     updateAssessment,
     deleteAssessment,
+    createResult,
+    updateResult,
+    deleteResult,
     uploadFile,
     deleteFile,
   } = useStudentCore();
@@ -96,6 +101,7 @@ export default function CourseDetailPage() {
             <Badge>{course.tasks.length} tasks</Badge>
             <Badge>{course.assessments.length} assessments</Badge>
             <Badge>{course.files.length} files</Badge>
+            <Badge>{course.results.length} results</Badge>
           </div>
         </div>
       </section>
@@ -213,6 +219,38 @@ export default function CourseDetailPage() {
           </div>
         </Section>
       </div>
+
+      <Section title="Results" description="Track released or expected result records for this course.">
+        <ResultCreateForm
+          courses={courseOptions.filter((item) => item.id === course.id)}
+          semesters={semesters}
+          onCreate={(payload) => createResult({ ...payload, courseId: course.id, semesterId: course.semesterId })}
+        />
+        <div className="mt-5 space-y-4">
+          {course.results.length ? (
+            course.results.map((result) => (
+              <div key={result.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <Badge>{result.grade}</Badge>
+                  <Badge className="bg-[#d8ead9] text-[#27563c]">{titleCase(result.status)}</Badge>
+                  <span className="text-sm text-stone-600">
+                    GPA point {result.gradePoint.toFixed(2)} · {result.creditHours} credits
+                  </span>
+                </div>
+                <ResultUpdateForm
+                  result={result}
+                  courses={courseOptions}
+                  semesters={semesters}
+                  onUpdate={updateResult}
+                  onDelete={deleteResult}
+                />
+              </div>
+            ))
+          ) : (
+            <EmptyState title="No result records yet" copy="Add final grades, score, and credit hours for this course." />
+          )}
+        </div>
+      </Section>
     </div>
   );
 }

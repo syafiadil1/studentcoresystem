@@ -3,6 +3,7 @@ import { differenceInCalendarDays } from "date-fns";
 import { dayOrder } from "@/lib/constants";
 import type {
   Course,
+  SemesterResultSummary,
   Semester,
   StudentCoreState,
   TaskItem,
@@ -96,6 +97,55 @@ export function getDashboardData(state: StudentCoreState) {
   return { todayClasses, taskSummary, overdueTasks, dueSoonTasks, upcomingAssessments, activeSemesterSummary };
 }
 
+export function getResultsPageData(state: StudentCoreState) {
+  const semesterMap = getSemesterMap(state.semesters);
+  const courseMap = getCourseMap(state.courses);
+
+  const results = state.results
+    .slice()
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .map((result) => ({
+      ...result,
+      course: courseMap.get(result.courseId) || null,
+      semester: semesterMap.get(result.semesterId) || null,
+    }));
+
+  const summaries = state.semesters
+    .map<SemesterResultSummary>((semester) => {
+      const semesterResults = state.results.filter((result) => result.semesterId === semester.id);
+      const totalCredits = semesterResults.reduce((sum, result) => sum + result.creditHours, 0);
+      const weightedGradePoints = semesterResults.reduce(
+        (sum, result) => sum + result.gradePoint * result.creditHours,
+        0,
+      );
+      const gpa = totalCredits ? Number((weightedGradePoints / totalCredits).toFixed(2)) : 0;
+
+      return {
+        semesterId: semester.id,
+        semesterName: semester.name,
+        totalCredits,
+        weightedGradePoints,
+        gpa,
+        resultsCount: semesterResults.length,
+      };
+    })
+    .filter((summary) => summary.resultsCount > 0)
+    .sort((a, b) => b.semesterName.localeCompare(a.semesterName));
+
+  const totalCredits = summaries.reduce((sum, summary) => sum + summary.totalCredits, 0);
+  const totalWeighted = summaries.reduce((sum, summary) => sum + summary.weightedGradePoints, 0);
+  const cgpa = totalCredits ? Number((totalWeighted / totalCredits).toFixed(2)) : 0;
+
+  return {
+    courses: state.courses.slice().sort((a, b) => a.code.localeCompare(b.code)),
+    semesters: state.semesters.slice().sort((a, b) => Number(b.isActive) - Number(a.isActive)),
+    results,
+    summaries,
+    cgpa,
+    totalCredits,
+  };
+}
+
 export function getCoursesPageData(state: StudentCoreState) {
   return state.semesters
     .slice()
@@ -111,6 +161,7 @@ export function getCoursesPageData(state: StudentCoreState) {
           tasks: state.tasks.filter((task) => task.courseId === course.id),
           assessments: state.assessments.filter((assessment) => assessment.courseId === course.id),
           files: state.files.filter((file) => file.courseId === course.id),
+          results: state.results.filter((result) => result.courseId === course.id),
         })),
     }));
 }
@@ -138,6 +189,9 @@ export function getCourseDetail(state: StudentCoreState, courseId: string) {
       .sort((a, b) => a.dueAt.localeCompare(b.dueAt)),
     files: state.files
       .filter((file) => file.courseId === course.id)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    results: state.results
+      .filter((result) => result.courseId === course.id)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
   };
 }

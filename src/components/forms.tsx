@@ -6,6 +6,8 @@ import {
   assessmentTypeOptions,
   dayOrder,
   fileCategoryOptions,
+  letterGradeOptions,
+  resultStatusOptions,
   sessionTypeOptions,
   taskCategoryOptions,
   taskPriorityOptions,
@@ -17,7 +19,10 @@ import type {
   AssessmentType,
   ClassSession,
   Course,
+  CourseResult,
   FileCategory,
+  LetterGrade,
+  ResultStatus,
   Semester,
   SessionType,
   TaskCategory,
@@ -805,5 +810,182 @@ export function FileDeleteForm({
     <Button type="button" tone="danger" onClick={() => onDelete(fileId)}>
       Delete
     </Button>
+  );
+}
+
+export function ResultCreateForm({
+  courses,
+  semesters,
+  onCreate,
+}: {
+  courses: CourseOption[];
+  semesters: SemesterOption[];
+  onCreate: (payload: {
+    courseId: string;
+    semesterId: string;
+    title: string;
+    creditHours: number;
+    score: number | null;
+    grade: LetterGrade;
+    status: ResultStatus;
+    notes: string;
+  }) => void;
+}) {
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onCreate({
+          courseId: String(data.get("courseId") || ""),
+          semesterId: String(data.get("semesterId") || ""),
+          title: String(data.get("title") || "").trim(),
+          creditHours: Number(data.get("creditHours")) || 0,
+          score: String(data.get("score") || "") ? Number(data.get("score")) : null,
+          grade: String(data.get("grade") || "A") as LetterGrade,
+          status: String(data.get("status") || "RELEASED") as ResultStatus,
+          notes: String(data.get("notes") || "").trim(),
+        });
+        resetIfCreate(event.currentTarget, true);
+      }}
+      className="grid gap-4 md:grid-cols-2"
+    >
+      <Field label="Result title">
+        <Input name="title" placeholder="Final Result" required />
+      </Field>
+      <Field label="Course">
+        <Select name="courseId" required defaultValue={courses[0]?.id || ""}>
+          {courses.map((course) => (
+            <option key={course.id} value={course.id}>
+              {course.code} · {course.name}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Semester">
+        <Select name="semesterId" required defaultValue={semesters.find((semester) => semester.isActive)?.id || semesters[0]?.id || ""}>
+          {semesters.map((semester) => (
+            <option key={semester.id} value={semester.id}>
+              {semester.name}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Credit hours">
+        <Input name="creditHours" type="number" min="1" step="1" required />
+      </Field>
+      <Field label="Score">
+        <Input name="score" type="number" min="0" max="100" step="0.01" />
+      </Field>
+      <Field label="Grade">
+        <Select name="grade" defaultValue="A">
+          {letterGradeOptions.map((grade) => (
+            <option key={grade} value={grade}>
+              {grade}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Status">
+        <Select name="status" defaultValue="RELEASED">
+          {resultStatusOptions.map((status) => (
+            <option key={status} value={status}>
+              {titleCase(status)}
+            </option>
+          ))}
+        </Select>
+      </Field>
+      <Field label="Notes">
+        <Textarea name="notes" placeholder="Optional notes about this result" />
+      </Field>
+      <div className="md:col-span-2">
+        <Button type="submit">Add result</Button>
+      </div>
+    </form>
+  );
+}
+
+export function ResultUpdateForm({
+  result,
+  courses,
+  semesters,
+  onUpdate,
+  onDelete,
+}: {
+  result: Pick<CourseResult, "id" | "courseId" | "semesterId" | "title" | "creditHours" | "score" | "grade" | "status" | "notes">;
+  courses: CourseOption[];
+  semesters: SemesterOption[];
+  onUpdate: (
+    resultId: string,
+    payload: {
+      courseId: string;
+      semesterId: string;
+      title: string;
+      creditHours: number;
+      score: number | null;
+      grade: LetterGrade;
+      status: ResultStatus;
+      notes: string;
+    },
+  ) => void;
+  onDelete: (resultId: string) => void;
+}) {
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const data = formData(event);
+        onUpdate(result.id, {
+          courseId: String(data.get("courseId") || ""),
+          semesterId: String(data.get("semesterId") || ""),
+          title: String(data.get("title") || "").trim(),
+          creditHours: Number(data.get("creditHours")) || 0,
+          score: String(data.get("score") || "") ? Number(data.get("score")) : null,
+          grade: String(data.get("grade") || "A") as LetterGrade,
+          status: String(data.get("status") || "RELEASED") as ResultStatus,
+          notes: String(data.get("notes") || "").trim(),
+        });
+      }}
+      className="grid gap-3 md:grid-cols-2"
+    >
+      <Input name="title" defaultValue={result.title} />
+      <Select name="courseId" defaultValue={result.courseId}>
+        {courses.map((course) => (
+          <option key={course.id} value={course.id}>
+            {course.code} · {course.name}
+          </option>
+        ))}
+      </Select>
+      <Select name="semesterId" defaultValue={result.semesterId}>
+        {semesters.map((semester) => (
+          <option key={semester.id} value={semester.id}>
+            {semester.name}
+          </option>
+        ))}
+      </Select>
+      <Input name="creditHours" type="number" min="1" step="1" defaultValue={result.creditHours} />
+      <Input name="score" type="number" min="0" max="100" step="0.01" defaultValue={result.score ?? ""} />
+      <Select name="grade" defaultValue={result.grade}>
+        {letterGradeOptions.map((grade) => (
+          <option key={grade} value={grade}>
+            {grade}
+          </option>
+        ))}
+      </Select>
+      <Select name="status" defaultValue={result.status}>
+        {resultStatusOptions.map((status) => (
+          <option key={status} value={status}>
+            {titleCase(status)}
+          </option>
+        ))}
+      </Select>
+      <Textarea name="notes" defaultValue={result.notes} className="md:col-span-2" />
+      <div className="md:col-span-2 flex gap-3">
+        <Button type="submit">Save</Button>
+        <Button type="button" tone="danger" onClick={() => onDelete(result.id)}>
+          Delete
+        </Button>
+      </div>
+    </form>
   );
 }

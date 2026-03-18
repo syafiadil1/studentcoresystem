@@ -14,6 +14,7 @@ import type {
   ClassSession,
   Course,
   CourseFile,
+  CourseResult,
   Semester,
   StudentCoreState,
   TaskItem,
@@ -26,6 +27,7 @@ const emptyState: StudentCoreState = {
   tasks: [],
   assessments: [],
   files: [],
+  results: [],
 };
 
 type CreateSemesterInput = Omit<Semester, "id" | "createdAt" | "updatedAt">;
@@ -33,6 +35,7 @@ type CreateCourseInput = Omit<Course, "id" | "createdAt" | "updatedAt">;
 type CreateSessionInput = Omit<ClassSession, "id" | "createdAt" | "updatedAt">;
 type CreateTaskInput = Omit<TaskItem, "id" | "createdAt" | "updatedAt">;
 type CreateAssessmentInput = Omit<Assessment, "id" | "createdAt" | "updatedAt">;
+type CreateResultInput = Omit<CourseResult, "id" | "createdAt" | "updatedAt" | "gradePoint">;
 
 type UploadFileInput = {
   title: string;
@@ -59,6 +62,9 @@ type StudentCoreContextValue = {
   createAssessment: (input: CreateAssessmentInput) => void;
   updateAssessment: (assessmentId: string, input: CreateAssessmentInput) => void;
   deleteAssessment: (assessmentId: string) => void;
+  createResult: (input: CreateResultInput) => void;
+  updateResult: (resultId: string, input: CreateResultInput) => void;
+  deleteResult: (resultId: string) => void;
   uploadFile: (input: UploadFileInput) => Promise<void>;
   deleteFile: (fileId: string) => void;
   exportWorkspace: () => void;
@@ -67,6 +73,21 @@ type StudentCoreContextValue = {
 };
 
 const StudentCoreContext = createContext<StudentCoreContextValue | null>(null);
+
+const gradePointMap: Record<CourseResult["grade"], number> = {
+  "A+": 4,
+  A: 4,
+  "A-": 3.67,
+  "B+": 3.33,
+  B: 3,
+  "B-": 2.67,
+  "C+": 2.33,
+  C: 2,
+  "C-": 1.67,
+  "D+": 1.33,
+  D: 1,
+  F: 0,
+};
 
 function stamp<T extends object>(payload: T) {
   const now = new Date().toISOString();
@@ -102,6 +123,13 @@ function readFileAsText(file: File) {
     reader.onerror = () => reject(reader.error);
     reader.readAsText(file);
   });
+}
+
+function withGradePoint<T extends { grade: CourseResult["grade"] }>(payload: T) {
+  return {
+    ...payload,
+    gradePoint: gradePointMap[payload.grade],
+  };
 }
 
 export function StudentCoreProvider({ children }: { children: ReactNode }) {
@@ -174,6 +202,7 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
               (assessment) => !courseIds.includes(assessment.courseId),
             ),
             files: current.files.filter((file) => !courseIds.includes(file.courseId)),
+            results: current.results.filter((result) => !courseIds.includes(result.courseId)),
           };
         });
       },
@@ -199,6 +228,7 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
           tasks: current.tasks.filter((task) => task.courseId !== courseId),
           assessments: current.assessments.filter((assessment) => assessment.courseId !== courseId),
           files: current.files.filter((file) => file.courseId !== courseId),
+          results: current.results.filter((result) => result.courseId !== courseId),
         }));
       },
       createSession(input) {
@@ -257,6 +287,26 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
         setState((current) => ({
           ...current,
           assessments: current.assessments.filter((assessment) => assessment.id !== assessmentId),
+        }));
+      },
+      createResult(input) {
+        setState((current) => ({
+          ...current,
+          results: [...current.results, stamp(withGradePoint(input))],
+        }));
+      },
+      updateResult(resultId, input) {
+        setState((current) => ({
+          ...current,
+          results: current.results.map((result) =>
+            result.id === resultId ? touch(result, withGradePoint(input)) : result,
+          ),
+        }));
+      },
+      deleteResult(resultId) {
+        setState((current) => ({
+          ...current,
+          results: current.results.filter((result) => result.id !== resultId),
         }));
       },
       async uploadFile(input) {
@@ -318,7 +368,10 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
           throw new Error("Invalid StudentCore backup file.");
         }
 
-        setState(nextState);
+        setState({
+          ...nextState,
+          results: Array.isArray(nextState.results) ? nextState.results : [],
+        });
       },
       resetWorkspace() {
         setState(emptyState);

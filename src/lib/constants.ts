@@ -22,4 +22,6 @@ export const assessmentTypeOptions = [
 ] as const;
 export const assessmentStatusOptions = ["PENDING", "SUBMITTED", "COMPLETED"] as const;
 export const fileCategoryOptions = ["LECTURE_NOTE", "TUTORIAL", "ASSIGNMENT", "PAST_YEAR", "OTHER"] as const;
+export const resultStatusOptions = ["EXPECTED", "RELEASED"] as const;
+export const letterGradeOptions = ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"] as const;
 export const studentCoreStorageKey = "studentcore-browser-state";

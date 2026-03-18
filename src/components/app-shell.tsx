@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, CalendarRange, ClipboardList, Home, ListChecks } from "lucide-react";
+import { Award, BookOpen, CalendarRange, ClipboardList, Home, ListChecks } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/timetable", label: "Timetable", icon: CalendarRange },
   { href: "/tasks", label: "Tasks", icon: ListChecks },
   { href: "/assessments", label: "Assessments", icon: ClipboardList },
+  { href: "/results", label: "Results", icon: Award },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
