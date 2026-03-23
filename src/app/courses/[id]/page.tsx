@@ -138,7 +138,8 @@ export default function CourseDetailPage() {
                     <div className="flex gap-3">
                       <a
                         href={file.fileDataUrl}
-                        download={file.fileName}
+                        target="_blank"
+                        rel="noreferrer"
                         className="inline-flex items-center justify-center rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
                       >
                         Open
