@@ -18,7 +18,7 @@ import {
 } from "@/components/forms";
 import { Badge, Button, EmptyState, Section } from "@/components/ui";
 import { getCourseDetail, getCoursesPageData } from "@/lib/local-data";
-import { bytesToSize, describeDeadline, formatDateTime, titleCase } from "@/lib/utils";
+import { bytesToSize, describeDeadline, formatDateTime, openDataUrlInNewTab, titleCase } from "@/lib/utils";
 
 export default function CourseDetailPage() {
   const params = useParams<{ id: string }>();
@@ -136,14 +136,13 @@ export default function CourseDetailPage() {
                       </p>
                     </div>
                     <div className="flex gap-3">
-                      <a
-                        href={file.fileDataUrl}
-                        target="_blank"
-                        rel="noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => openDataUrlInNewTab(file.fileDataUrl)}
                         className="inline-flex items-center justify-center rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
                       >
                         Open
-                      </a>
+                      </button>
                       <FileDeleteForm fileId={file.id} onDelete={deleteFile} />
                     </div>
                   </div>

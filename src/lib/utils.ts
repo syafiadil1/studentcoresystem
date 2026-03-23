@@ -50,3 +50,27 @@ export function bytesToSize(bytes: number) {
 export function normalizeSearch(value: string) {
   return value.trim().toLowerCase();
 }
+
+export function openDataUrlInNewTab(dataUrl: string) {
+  const [metadata, base64] = dataUrl.split(",", 2);
+
+  if (!metadata || !base64) {
+    window.open(dataUrl, "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  const mimeType = metadata.match(/data:(.*?);base64/)?.[1] || "application/octet-stream";
+  const binary = window.atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  const objectUrl = URL.createObjectURL(new Blob([bytes], { type: mimeType }));
+  window.open(objectUrl, "_blank", "noopener,noreferrer");
+
+  window.setTimeout(() => {
+    URL.revokeObjectURL(objectUrl);
+  }, 60_000);
+}
