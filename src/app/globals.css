@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #020702;
-  --foreground: #80f26d;
-  --panel: rgba(1, 11, 1, 0.96);
-  --panel-strong: rgba(0, 6, 0, 0.99);
-  --border: rgba(128, 242, 109, 0.34);
-  --muted: #4a8f45;
-  --muted-strong: #d7ffd0;
-  --accent: #8cff76;
+  --background: #0c0c0c;
+  --foreground: #a6e3a1;
+  --panel: #111111;
+  --panel-strong: #0f0f0f;
+  --border: #2d5a2d;
+  --muted: #6ea76a;
+  --muted-strong: #d3f2d0;
+  --accent: #a6e3a1;
 }
 
 @theme inline {
@@ -27,36 +27,9 @@ html {
 }
 
 body {
-  background:
-    linear-gradient(rgba(128, 242, 109, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(128, 242, 109, 0.05) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(128, 242, 109, 0.06) 0, rgba(128, 242, 109, 0.01) 2px, transparent 4px),
-    radial-gradient(circle at top, rgba(128, 242, 109, 0.1), transparent 24%),
-    linear-gradient(180deg, #020702 0%, #000300 100%);
-  background-size: 100% 3px, 3px 100%, 100% 6px, auto, auto;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), monospace;
-  text-shadow: 0 0 8px rgba(128, 242, 109, 0.08);
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, transparent 0%, rgba(128, 242, 109, 0.04) 50%, transparent 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0));
-  mix-blend-mode: screen;
-  opacity: 0.9;
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.35) 100%);
 }
 
 h1,
@@ -64,8 +37,8 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display), monospace;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 a,
@@ -83,8 +56,8 @@ textarea {
 }
 
 ::selection {
-  background: rgba(80, 255, 120, 0.3);
-  color: #031006;
+  background: rgba(166, 227, 161, 0.22);
+  color: #0c0c0c;
 }
 
 :where([class*="rounded-"]) {
@@ -124,14 +97,14 @@ textarea {
 }
 
 :where(.bg-stone-900) {
-  background: linear-gradient(180deg, #061406 0%, #030903 100%) !important;
+  background: var(--panel-strong) !important;
   color: var(--muted-strong) !important;
-  border: 1px solid rgba(120, 255, 120, 0.25);
-  box-shadow: 0 0 0 1px rgba(120, 255, 120, 0.08), inset 0 0 24px rgba(57, 255, 20, 0.06);
+  border: 1px solid var(--border);
+  box-shadow: none !important;
 }
 
 :where(.bg-\[\#fffaf3\]\/90) {
-  background: linear-gradient(180deg, rgba(2, 10, 2, 0.98) 0%, rgba(0, 5, 0, 0.98) 100%) !important;
+  background: var(--panel-strong) !important;
 }
 
 :where(.placeholder\:text-stone-400::placeholder) {
@@ -141,9 +114,7 @@ textarea {
 :where(.shadow-\[0_24px_80px_rgba\(80\,54\,36\,0\.08\)\]),
 :where(.shadow-\[0_18px_50px_rgba\(80\,54\,36\,0\.12\)\]),
 :where(.shadow-lg) {
-  box-shadow:
-    0 0 0 1px rgba(120, 255, 120, 0.08),
-    inset 0 0 30px rgba(57, 255, 20, 0.04) !important;
+  box-shadow: none !important;
 }
 
 :where(input),
@@ -162,13 +133,14 @@ textarea {
 :where(select),
 :where(textarea),
 :where(button) {
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 :where(main a:hover),
 :where(button:hover) {
-  box-shadow: inset 0 0 18px rgba(128, 242, 109, 0.08);
+  box-shadow: none;
+  background: #171717 !important;
 }
 
 :where(hr) {
