@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f1e7;
-  --foreground: #231913;
+  --background: #07110a;
+  --foreground: #94f784;
+  --panel: rgba(8, 24, 12, 0.88);
+  --panel-strong: rgba(6, 18, 9, 0.96);
+  --border: rgba(120, 255, 120, 0.28);
+  --muted: #5ea35f;
+  --muted-strong: #c9ffc1;
+  --accent: #32ff7e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-dm-sans);
-  --font-display: var(--font-fraunces);
+  --font-sans: "SFMono-Regular", "JetBrains Mono", "Fira Code", "IBM Plex Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", monospace;
+  --font-display: "SFMono-Regular", "JetBrains Mono", "Fira Code", "IBM Plex Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", monospace;
 }
 
 * {
@@ -21,16 +27,32 @@ html {
 }
 
 body {
-  background: var(--background);
+  background:
+    linear-gradient(rgba(40, 255, 120, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(40, 255, 120, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at top, rgba(40, 255, 120, 0.12), transparent 24%),
+    linear-gradient(180deg, #08110a 0%, #050905 100%);
+  background-size: 100% 3px, 3px 100%, auto, auto;
   color: var(--foreground);
-  font-family: var(--font-dm-sans), sans-serif;
+  font-family: var(--font-sans), monospace;
+  text-shadow: 0 0 10px rgba(80, 255, 120, 0.08);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(57, 255, 20, 0.03) 50%, transparent 100%);
+  mix-blend-mode: screen;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-fraunces), serif;
+  font-family: var(--font-display), monospace;
+  letter-spacing: -0.02em;
 }
 
 a,
@@ -43,9 +65,73 @@ textarea {
     background-color 160ms ease,
     border-color 160ms ease,
     opacity 160ms ease,
-    transform 160ms ease;
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 ::selection {
-  background: rgba(225, 106, 84, 0.22);
+  background: rgba(80, 255, 120, 0.3);
+  color: #031006;
+}
+
+:where(.text-stone-900) {
+  color: var(--muted-strong) !important;
+}
+
+:where(.text-stone-800),
+:where(.text-stone-700),
+:where(.text-stone-600),
+:where(.text-stone-500) {
+  color: var(--foreground) !important;
+}
+
+:where(.text-stone-400),
+:where(.text-stone-300) {
+  color: var(--muted) !important;
+}
+
+:where(.border-stone-200),
+:where(.border-stone-200\/80),
+:where(.border-stone-300),
+:where(.border-stone-400),
+:where(.border-stone-500) {
+  border-color: var(--border) !important;
+}
+
+:where(.bg-stone-50\/80),
+:where(.bg-stone-100),
+:where(.bg-white\/70),
+:where(.bg-white\/80),
+:where(.bg-white) {
+  background: var(--panel) !important;
+}
+
+:where(.bg-stone-900) {
+  background: linear-gradient(180deg, #0f3414 0%, #091f0c 100%) !important;
+  color: var(--muted-strong) !important;
+  border: 1px solid rgba(120, 255, 120, 0.25);
+  box-shadow: 0 0 0 1px rgba(120, 255, 120, 0.08), 0 0 30px rgba(57, 255, 20, 0.12);
+}
+
+:where(.bg-\[\#fffaf3\]\/90) {
+  background: linear-gradient(180deg, rgba(8, 23, 11, 0.96) 0%, rgba(5, 14, 7, 0.96) 100%) !important;
+}
+
+:where(.placeholder\:text-stone-400::placeholder) {
+  color: var(--muted) !important;
+}
+
+:where(.shadow-\[0_24px_80px_rgba\(80\,54\,36\,0\.08\)\]),
+:where(.shadow-\[0_18px_50px_rgba\(80\,54\,36\,0\.12\)\]),
+:where(.shadow-lg) {
+  box-shadow:
+    0 0 0 1px rgba(120, 255, 120, 0.08),
+    0 0 24px rgba(57, 255, 20, 0.08),
+    inset 0 1px 0 rgba(170, 255, 170, 0.04) !important;
+}
+
+:where(input),
+:where(select),
+:where(textarea) {
+  caret-color: var(--accent);
 }

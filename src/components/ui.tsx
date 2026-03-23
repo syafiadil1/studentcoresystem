@@ -36,11 +36,11 @@ export function StatCard({
 }) {
   const toneClass =
     tone === "accent"
-      ? "bg-[#f6d8c8] text-[#7a3626]"
+      ? "bg-[rgba(50,255,126,0.12)] text-[#8ff7a7]"
       : tone === "danger"
-        ? "bg-[#f9d3d0] text-[#842029]"
+        ? "bg-[rgba(255,90,90,0.14)] text-[#ff9898]"
         : tone === "success"
-          ? "bg-[#d8ead9] text-[#27563c]"
+          ? "bg-[rgba(120,255,120,0.12)] text-[#c6ffba]"
           : "bg-stone-100 text-stone-700";
 
   return (
@@ -76,7 +76,7 @@ export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cn(
-        "w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-500",
+        "w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-500 focus:shadow-[0_0_0_1px_rgba(120,255,120,0.2),0_0_18px_rgba(57,255,20,0.08)]",
         props.className,
       )}
     />
@@ -88,7 +88,7 @@ export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
     <textarea
       {...props}
       className={cn(
-        "min-h-28 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-500",
+        "min-h-28 w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-500 focus:shadow-[0_0_0_1px_rgba(120,255,120,0.2),0_0_18px_rgba(57,255,20,0.08)]",
         props.className,
       )}
     />
@@ -100,7 +100,7 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
     <select
       {...props}
       className={cn(
-        "w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500",
+        "w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-500 focus:shadow-[0_0_0_1px_rgba(120,255,120,0.2),0_0_18px_rgba(57,255,20,0.08)]",
         props.className,
       )}
     />
@@ -131,16 +131,16 @@ export function Button({
 }) {
   const tones =
     tone === "secondary"
-      ? "bg-stone-100 text-stone-900 hover:bg-stone-200"
+      ? "bg-stone-100 text-stone-900 hover:opacity-90"
       : tone === "danger"
-        ? "bg-[#872b1f] text-white hover:bg-[#6d2218]"
-        : "bg-stone-900 text-white hover:bg-stone-700";
+        ? "bg-[#3a0d0d] text-[#ff9898] hover:opacity-90"
+        : "bg-stone-900 text-white hover:opacity-90";
 
   return (
     <button
       {...props}
       className={cn(
-        "inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm font-medium transition",
+        "inline-flex items-center justify-center rounded-2xl border border-stone-300 px-4 py-3 text-sm font-medium transition",
         tones,
         className,
       )}
@@ -156,7 +156,7 @@ export function Badge({
   className?: string;
 }) {
   return (
-    <span className={cn("rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-stone-700", className)}>
+    <span className={cn("rounded-full border border-stone-300 bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-stone-700", className)}>
       {children}
     </span>
   );
