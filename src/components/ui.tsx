@@ -15,7 +15,8 @@ export function Section({
     <section className="rounded-[28px] border border-stone-200/80 bg-[#fffaf3]/90 p-5 shadow-[0_24px_80px_rgba(80,54,36,0.08)]">
       <div className="mb-5 flex flex-col gap-3 border-b border-stone-200 pb-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-stone-900">{title}</h2>
+          <p className="text-xs uppercase tracking-[0.28em] text-stone-500">$ module</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-stone-900">{title}</h2>
           {description ? <p className="mt-1 text-sm text-stone-600">{description}</p> : null}
         </div>
         {action}
@@ -45,7 +46,7 @@ export function StatCard({
 
   return (
     <div className="rounded-3xl border border-stone-200 bg-white/70 p-5">
-      <p className="text-sm text-stone-500">{label}</p>
+      <p className="text-xs uppercase tracking-[0.24em] text-stone-500">[{label}]</p>
       <div className="mt-4 flex items-center justify-between">
         <p className="text-3xl font-semibold tracking-tight text-stone-900">{value}</p>
         <span className={cn("rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]", toneClass)}>
@@ -65,7 +66,8 @@ export function EmptyState({
 }) {
   return (
     <div className="rounded-3xl border border-dashed border-stone-300 bg-stone-50/80 p-8 text-center">
-      <h3 className="text-lg font-semibold text-stone-900">{title}</h3>
+      <p className="text-xs uppercase tracking-[0.28em] text-stone-500">no_output</p>
+      <h3 className="mt-2 text-lg font-semibold text-stone-900">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-stone-600">{copy}</p>
     </div>
   );
@@ -116,7 +118,7 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-stone-700">{label}</span>
+      <span className="mb-2 block text-xs font-medium uppercase tracking-[0.22em] text-stone-700">{label}</span>
       {children}
     </label>
   );

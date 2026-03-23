@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #07110a;
-  --foreground: #94f784;
-  --panel: rgba(8, 24, 12, 0.88);
-  --panel-strong: rgba(6, 18, 9, 0.96);
-  --border: rgba(120, 255, 120, 0.28);
-  --muted: #5ea35f;
-  --muted-strong: #c9ffc1;
-  --accent: #32ff7e;
+  --background: #020702;
+  --foreground: #80f26d;
+  --panel: rgba(1, 11, 1, 0.96);
+  --panel-strong: rgba(0, 6, 0, 0.99);
+  --border: rgba(128, 242, 109, 0.34);
+  --muted: #4a8f45;
+  --muted-strong: #d7ffd0;
+  --accent: #8cff76;
 }
 
 @theme inline {
@@ -28,14 +28,15 @@ html {
 
 body {
   background:
-    linear-gradient(rgba(40, 255, 120, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(40, 255, 120, 0.045) 1px, transparent 1px),
-    radial-gradient(circle at top, rgba(40, 255, 120, 0.12), transparent 24%),
-    linear-gradient(180deg, #08110a 0%, #050905 100%);
-  background-size: 100% 3px, 3px 100%, auto, auto;
+    linear-gradient(rgba(128, 242, 109, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(128, 242, 109, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(128, 242, 109, 0.06) 0, rgba(128, 242, 109, 0.01) 2px, transparent 4px),
+    radial-gradient(circle at top, rgba(128, 242, 109, 0.1), transparent 24%),
+    linear-gradient(180deg, #020702 0%, #000300 100%);
+  background-size: 100% 3px, 3px 100%, 100% 6px, auto, auto;
   color: var(--foreground);
   font-family: var(--font-sans), monospace;
-  text-shadow: 0 0 10px rgba(80, 255, 120, 0.08);
+  text-shadow: 0 0 8px rgba(128, 242, 109, 0.08);
 }
 
 body::before {
@@ -43,8 +44,19 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, transparent 0%, rgba(57, 255, 20, 0.03) 50%, transparent 100%);
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(128, 242, 109, 0.04) 50%, transparent 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0));
   mix-blend-mode: screen;
+  opacity: 0.9;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.35) 100%);
 }
 
 h1,
@@ -53,6 +65,7 @@ h3,
 h4 {
   font-family: var(--font-display), monospace;
   letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
 
 a,
@@ -72,6 +85,10 @@ textarea {
 ::selection {
   background: rgba(80, 255, 120, 0.3);
   color: #031006;
+}
+
+:where([class*="rounded-"]) {
+  border-radius: 0 !important;
 }
 
 :where(.text-stone-900) {
@@ -107,14 +124,14 @@ textarea {
 }
 
 :where(.bg-stone-900) {
-  background: linear-gradient(180deg, #0f3414 0%, #091f0c 100%) !important;
+  background: linear-gradient(180deg, #061406 0%, #030903 100%) !important;
   color: var(--muted-strong) !important;
   border: 1px solid rgba(120, 255, 120, 0.25);
-  box-shadow: 0 0 0 1px rgba(120, 255, 120, 0.08), 0 0 30px rgba(57, 255, 20, 0.12);
+  box-shadow: 0 0 0 1px rgba(120, 255, 120, 0.08), inset 0 0 24px rgba(57, 255, 20, 0.06);
 }
 
 :where(.bg-\[\#fffaf3\]\/90) {
-  background: linear-gradient(180deg, rgba(8, 23, 11, 0.96) 0%, rgba(5, 14, 7, 0.96) 100%) !important;
+  background: linear-gradient(180deg, rgba(2, 10, 2, 0.98) 0%, rgba(0, 5, 0, 0.98) 100%) !important;
 }
 
 :where(.placeholder\:text-stone-400::placeholder) {
@@ -126,12 +143,34 @@ textarea {
 :where(.shadow-lg) {
   box-shadow:
     0 0 0 1px rgba(120, 255, 120, 0.08),
-    0 0 24px rgba(57, 255, 20, 0.08),
-    inset 0 1px 0 rgba(170, 255, 170, 0.04) !important;
+    inset 0 0 30px rgba(57, 255, 20, 0.04) !important;
 }
 
 :where(input),
 :where(select),
 :where(textarea) {
   caret-color: var(--accent);
+  border-radius: 0 !important;
+}
+
+:where(button),
+:where(a) {
+  border-radius: 0 !important;
+}
+
+:where(input),
+:where(select),
+:where(textarea),
+:where(button) {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+:where(main a:hover),
+:where(button:hover) {
+  box-shadow: inset 0 0 18px rgba(128, 242, 109, 0.08);
+}
+
+:where(hr) {
+  border-color: var(--border);
 }

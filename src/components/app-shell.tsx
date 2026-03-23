@@ -25,13 +25,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex h-full flex-col rounded-[28px] border border-stone-200/80 bg-[#fffaf3]/90 p-5 shadow-[0_24px_80px_rgba(80,54,36,0.08)] backdrop-blur">
             <div className="mb-8">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">
-                StudentCore v1.0
+                studentcore@local:~$
               </p>
               <h1 className="mt-3 text-2xl font-semibold tracking-tight text-stone-900">
-                Terminal Workspace
+                Academic Terminal
               </h1>
               <p className="mt-2 text-sm leading-6 text-stone-600">
-                Course logs, deadlines, files, and results rendered in one local terminal-style workspace.
+                Course logs, deadlines, files, and results running in a single local console workspace.
               </p>
             </div>
 
@@ -52,14 +52,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     )}
                   >
                     <Icon className="h-4 w-4" />
-                    {item.label}
+                    <span className="text-xs tracking-[0.22em]">{item.label}</span>
                   </Link>
                 );
               })}
             </nav>
 
             <div className="mt-auto rounded-2xl bg-stone-900 px-4 py-4 text-sm text-stone-100">
-              <p className="font-medium">$ storage.local</p>
+              <p className="font-medium">STATUS: ONLINE</p>
               <p className="mt-2 text-stone-300">
                 Data is stored in this browser only. New users boot into their own empty workspace.
               </p>
