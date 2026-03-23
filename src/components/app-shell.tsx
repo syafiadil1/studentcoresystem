@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Award, BookOpen, CalendarRange, ClipboardList, Home, ListChecks } from "lucide-react";
+import { Award, BookOpen, CalendarRange, ClipboardList, Home, ListChecks, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Home },
+  { href: "/search", label: "Search", icon: Search },
   { href: "/courses", label: "Courses", icon: BookOpen },
   { href: "/timetable", label: "Timetable", icon: CalendarRange },
   { href: "/tasks", label: "Tasks", icon: ListChecks },

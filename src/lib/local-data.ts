@@ -253,6 +253,60 @@ export function getAssessmentPageData(
   };
 }
 
+export function getGlobalSearchData(state: StudentCoreState) {
+  const courseMap = getCourseMap(state.courses);
+  const semesterMap = getSemesterMap(state.semesters);
+
+  return {
+    courses: state.courses
+      .slice()
+      .sort((a, b) => a.code.localeCompare(b.code))
+      .map((course) => ({
+        ...course,
+        semester: semesterMap.get(course.semesterId) || null,
+      })),
+    sessions: state.sessions
+      .slice()
+      .sort((a, b) => dayOrder.indexOf(a.dayOfWeek) - dayOrder.indexOf(b.dayOfWeek) || a.startTime.localeCompare(b.startTime))
+      .map((session) => ({
+        ...session,
+        course: courseMap.get(session.courseId) || null,
+      }))
+      .filter((session) => Boolean(session.course)),
+    tasks: state.tasks
+      .slice()
+      .sort(sortTasks)
+      .map((task) => ({
+        ...task,
+        course: task.courseId ? courseMap.get(task.courseId) || null : null,
+      })),
+    assessments: state.assessments
+      .slice()
+      .sort((a, b) => a.dueAt.localeCompare(b.dueAt))
+      .map((assessment) => ({
+        ...assessment,
+        course: courseMap.get(assessment.courseId) || null,
+      }))
+      .filter((assessment) => Boolean(assessment.course)),
+    files: state.files
+      .slice()
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((file) => ({
+        ...file,
+        course: courseMap.get(file.courseId) || null,
+      }))
+      .filter((file) => Boolean(file.course)),
+    results: (state.results ?? [])
+      .slice()
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map((result) => ({
+        ...result,
+        course: courseMap.get(result.courseId) || null,
+        semester: semesterMap.get(result.semesterId) || null,
+      })),
+  };
+}
+
 function sortByDueAt(a: TaskItem, b: TaskItem) {
   if (!a.dueAt && !b.dueAt) return 0;
   if (!a.dueAt) return 1;
