@@ -19,6 +19,14 @@ import type {
   StudentCoreState,
   TaskItem,
 } from "@/lib/types";
+import {
+  seedAssessments,
+  seedCourses,
+  seedResults,
+  seedSemesters,
+  seedSessions,
+  seedTasks,
+} from "@/lib/seed-data";
 
 const emptyState: StudentCoreState = {
   semesters: [],
@@ -132,6 +140,73 @@ function withGradePoint<T extends { grade: CourseResult["grade"] }>(payload: T) 
   };
 }
 
+function seedState(): StudentCoreState {
+  const semesterIds: string[] = [];
+  const semesters: Semester[] = seedSemesters.map((s) => {
+    const id = crypto.randomUUID();
+    semesterIds.push(id);
+    return { ...s, id, createdAt: "2026-07-30T00:00:00.000Z", updatedAt: "2026-07-30T00:00:00.000Z" };
+  });
+
+  const [S1, S2, S3, S4] = semesterIds;
+
+  const courseIdMap = new Map<string, string>();
+  const courses: Course[] = seedCourses.map((c) => {
+    const id = crypto.randomUUID();
+    let semesterId = c.semesterId;
+    if (semesterId === "__S1__") semesterId = S1;
+    else if (semesterId === "__S2__") semesterId = S2;
+    else if (semesterId === "__S3__") semesterId = S3;
+    else if (semesterId === "__S4__") semesterId = S4;
+
+    courseIdMap.set(`${c.code}_${semesterId}`, id);
+    return { ...c, id, semesterId, createdAt: "2026-07-30T00:00:00.000Z", updatedAt: "2026-07-30T00:00:00.000Z" };
+  });
+
+  const getCourseId = (key: string) => courseIdMap.get(key) ?? "";
+
+  const sessions: ClassSession[] = seedSessions.map((s) => ({
+    ...s,
+    id: crypto.randomUUID(),
+    courseId: getCourseId(s.courseId),
+    createdAt: "2026-07-30T00:00:00.000Z",
+    updatedAt: "2026-07-30T00:00:00.000Z",
+  }));
+
+  const tasks: TaskItem[] = seedTasks.map((t) => ({
+    ...t,
+    id: crypto.randomUUID(),
+    courseId: t.courseId ? getCourseId(t.courseId) : null,
+    createdAt: "2026-07-30T00:00:00.000Z",
+    updatedAt: "2026-07-30T00:00:00.000Z",
+  }));
+
+  const assessments: Assessment[] = seedAssessments.map((a) => ({
+    ...a,
+    id: crypto.randomUUID(),
+    courseId: getCourseId(a.courseId),
+    createdAt: "2026-07-30T00:00:00.000Z",
+    updatedAt: "2026-07-30T00:00:00.000Z",
+  }));
+
+  const gradePointMap: Record<CourseResult["grade"], number> = {
+    "A+": 4, A: 4, "A-": 3.67, "B+": 3.33, B: 3, "B-": 2.67,
+    "C+": 2.33, C: 2, "C-": 1.67, "D+": 1.33, D: 1, F: 0,
+  };
+
+  const results: CourseResult[] = seedResults.map((r) => ({
+    ...r,
+    id: crypto.randomUUID(),
+    courseId: getCourseId(r.courseId),
+    semesterId: r.semesterId === "__S1__" ? S1 : r.semesterId === "__S2__" ? S2 : r.semesterId === "__S3__" ? S3 : S4,
+    gradePoint: gradePointMap[r.grade],
+    createdAt: "2026-07-30T00:00:00.000Z",
+    updatedAt: "2026-07-30T00:00:00.000Z",
+  }));
+
+  return { semesters, courses, sessions, tasks, assessments, files: [], results };
+}
+
 export function StudentCoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<StudentCoreState>(emptyState);
   const [hydrated, setHydrated] = useState(false);
@@ -152,9 +227,12 @@ export function StudentCoreProvider({ children }: { children: ReactNode }) {
           files: Array.isArray(parsed.files) ? parsed.files : [],
           results: Array.isArray(parsed.results) ? parsed.results : [],
         });
+      } else {
+        setState(seedState());
       }
     } catch {
       window.localStorage.removeItem(studentCoreStorageKey);
+      setState(seedState());
     } finally {
       setHydrated(true);
     }
