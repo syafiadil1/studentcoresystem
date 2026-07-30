@@ -63,10 +63,10 @@ export default function CourseDetailPage() {
   if (!course || !course.semester) {
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
-        <div className="max-w-md rounded-[32px] border border-stone-200 bg-[#fffaf3]/90 p-8 text-center shadow-[0_24px_80px_rgba(80,54,36,0.08)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">Not Found</p>
-          <h1 className="mt-4 text-4xl font-semibold text-stone-900">This course does not exist in this browser workspace.</h1>
-          <p className="mt-4 text-sm leading-6 text-stone-600">
+        <div className="max-w-md border border-line bg-panel p-8 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted">Not Found</p>
+          <h1 className="mt-4 text-4xl font-semibold text-ink">This course does not exist in this browser workspace.</h1>
+          <p className="mt-4 text-sm leading-6 text-muted">
             Head back to StudentCore courses and create a course for this browser.
           </p>
           <div className="mt-6 flex justify-center gap-3">
@@ -84,16 +84,16 @@ export default function CourseDetailPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[32px] border border-stone-200/80 bg-[#fffaf3]/90 p-6 shadow-[0_24px_80px_rgba(80,54,36,0.08)] md:p-8">
+      <section className="border border-line bg-panel p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted">
               {course.code}
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-stone-900">
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-ink">
               {course.name}
             </h1>
-            <p className="mt-3 text-base text-stone-600">
+            <p className="mt-3 text-base text-muted">
               {course.lecturerName} · {course.semester.name}
             </p>
           </div>
@@ -127,11 +127,11 @@ export default function CourseDetailPage() {
           <div className="mt-5 space-y-3">
             {course.files.length ? (
               course.files.map((file) => (
-                <div key={file.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                <div key={file.id} className="border border-line bg-paper-2 p-4">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <h3 className="font-semibold text-stone-900">{file.title}</h3>
-                      <p className="text-sm text-stone-600">
+                      <h3 className="font-semibold text-ink">{file.title}</h3>
+                      <p className="text-sm text-muted">
                         {titleCase(file.fileCategory)} · {bytesToSize(file.sizeBytes)}
                       </p>
                     </div>
@@ -139,7 +139,7 @@ export default function CourseDetailPage() {
                       <button
                         type="button"
                         onClick={() => openDataUrlInNewTab(file.fileDataUrl)}
-                        className="inline-flex items-center justify-center rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                        className="inline-flex items-center justify-center bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
                       >
                         Open
                       </button>
@@ -159,8 +159,8 @@ export default function CourseDetailPage() {
           <div className="mt-5 space-y-4">
             {course.sessions.length ? (
               course.sessions.map((session) => (
-                <div key={session.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
-                  <p className="mb-3 text-sm text-stone-600">
+                <div key={session.id} className="border border-line bg-paper-2 p-4">
+                  <p className="mb-3 text-sm text-muted">
                     {titleCase(session.dayOfWeek)} · {session.startTime} - {session.endTime}
                   </p>
                   <SessionUpdateForm session={session} onUpdate={updateSession} onDelete={deleteSession} />
@@ -179,11 +179,11 @@ export default function CourseDetailPage() {
           <div className="mt-5 space-y-4">
             {course.tasks.length ? (
               course.tasks.map((task) => (
-                <div key={task.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                <div key={task.id} className="border border-line bg-paper-2 p-4">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
                     <Badge>{titleCase(task.status)}</Badge>
-                    <Badge className="bg-[#f6d8c8] text-[#7a3626]">{titleCase(task.priority)}</Badge>
-                    {task.dueAt ? <span className="text-sm text-stone-600">{describeDeadline(task.dueAt)}</span> : null}
+                    <Badge className="bg-warn-bg text-warn">{titleCase(task.priority)}</Badge>
+                    {task.dueAt ? <span className="text-sm text-muted">{describeDeadline(task.dueAt)}</span> : null}
                   </div>
                   <TaskUpdateForm task={task} courses={courseOptions} onUpdate={updateTask} onDelete={deleteTask} />
                 </div>
@@ -199,11 +199,11 @@ export default function CourseDetailPage() {
           <div className="mt-5 space-y-4">
             {course.assessments.length ? (
               course.assessments.map((assessment) => (
-                <div key={assessment.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                <div key={assessment.id} className="border border-line bg-paper-2 p-4">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
                     <Badge>{titleCase(assessment.type)}</Badge>
-                    <Badge className="bg-[#d8ead9] text-[#27563c]">{titleCase(assessment.status)}</Badge>
-                    <span className="text-sm text-stone-600">{formatDateTime(assessment.dueAt)}</span>
+                    <Badge className="bg-success-bg text-success">{titleCase(assessment.status)}</Badge>
+                    <span className="text-sm text-muted">{formatDateTime(assessment.dueAt)}</span>
                   </div>
                   <AssessmentUpdateForm
                     assessment={assessment}
@@ -229,11 +229,11 @@ export default function CourseDetailPage() {
         <div className="mt-5 space-y-4">
           {course.results.length ? (
             course.results.map((result) => (
-              <div key={result.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+              <div key={result.id} className="border border-line bg-paper-2 p-4">
                 <div className="mb-3 flex flex-wrap items-center gap-2">
                   <Badge>{result.grade}</Badge>
-                  <Badge className="bg-[#d8ead9] text-[#27563c]">{titleCase(result.status)}</Badge>
-                  <span className="text-sm text-stone-600">
+                  <Badge className="bg-success-bg text-success">{titleCase(result.status)}</Badge>
+                  <span className="text-sm text-muted">
                     GPA point {result.gradePoint.toFixed(2)} · {result.creditHours} credits
                   </span>
                 </div>

@@ -1,44 +1,167 @@
+/* Hallmark · v1.1.0 · macrostructure: Workbench · theme: Terminal · nav: N3 side-rail · footer: Ft4 colophon
+ * genre: technical · enrichment: none (typography only)
+ * pre-emit critique: P4 H4 E4 S4 R5 V4
+ * axes: paper=dark · display=mono · accent=phosphor-green (chromatic-other)
+ * contrast: pass (40–41) · tokens: pass (48) · motion: ease-out, reduced-motion covered (27)
+ */
+
 @import "tailwindcss";
 
-:root {
-  --background: #0c0c0c;
-  --foreground: #a6e3a1;
-  --panel: #111111;
-  --panel-strong: #0f0f0f;
-  --border: #2d5a2d;
-  --muted: #6ea76a;
-  --muted-strong: #d3f2d0;
-  --accent: #a6e3a1;
+/* ─── Design tokens (OKLCH, phosphor anchor hue 142°) ─────────────────────── */
+:root,
+[data-mode="dark"] {
+  /* Paper — dark band, green-tinted neutrals (never pure #000) */
+  --color-paper: oklch(15.5% 0.012 142);
+  --color-paper-2: oklch(18.5% 0.014 142);
+  --color-panel: oklch(21.5% 0.016 142);
+  --color-panel-2: oklch(25% 0.018 142);
+
+  /* Rule / borders */
+  --color-line: oklch(32% 0.03 142);
+  --color-line-strong: oklch(42% 0.045 142);
+
+  /* Ink — light green-tinted text ramp (never pure #fff) */
+  --color-ink: oklch(93% 0.018 142);
+  --color-ink-2: oklch(80% 0.035 142);
+  --color-muted: oklch(64% 0.045 142);
+  --color-faint: oklch(52% 0.04 142);
+
+  /* Accent — phosphor green. Highlighter, not fill. */
+  --color-accent: oklch(84% 0.19 142);
+  --color-accent-ink: oklch(16% 0.03 142);
+  --color-focus: oklch(84% 0.19 142);
+
+  /* Status hues (kept quiet; accent stays the loudest thing on the page) */
+  --color-danger: oklch(74% 0.16 25);
+  --color-danger-bg: oklch(28% 0.05 25);
+  --color-success: oklch(84% 0.16 142);
+  --color-success-bg: oklch(28% 0.05 142);
+  --color-warn: oklch(80% 0.13 70);
+  --color-warn-bg: oklch(28% 0.045 70);
 }
 
+[data-mode="light"] {
+  /* Paper — light band, green-tinted (never pure #fff) */
+  --color-paper: oklch(96% 0.01 142);
+  --color-paper-2: oklch(92% 0.012 142);
+  --color-panel: oklch(99% 0.005 142);
+  --color-panel-2: oklch(95% 0.008 142);
+
+  /* Rule / borders */
+  --color-line: oklch(82% 0.015 142);
+  --color-line-strong: oklch(68% 0.02 142);
+
+  /* Ink — dark green-tinted text ramp */
+  --color-ink: oklch(18% 0.01 142);
+  --color-ink-2: oklch(28% 0.015 142);
+  --color-muted: oklch(42% 0.02 142);
+  --color-faint: oklch(52% 0.02 142);
+
+  /* Accent — darker green on light paper (hallmark: reduce chroma by 0.02, increase lightness by 5-10% vs dark) */
+  --color-accent: oklch(44% 0.17 142);
+  --color-accent-ink: oklch(96% 0.01 142);
+  --color-focus: oklch(44% 0.17 142);
+
+  /* Status hues — light-surface equivalents, same hue anchor */
+  --color-danger: oklch(48% 0.18 25);
+  --color-danger-bg: oklch(94% 0.03 25);
+  --color-success: oklch(44% 0.17 142);
+  --color-success-bg: oklch(94% 0.04 142);
+  --color-warn: oklch(48% 0.14 70);
+  --color-warn-bg: oklch(95% 0.04 70);
+}
+
+:root {
+  /* Type — Terminal theme: one mono family does every job, on purpose */
+  --font-display: "JetBrains Mono", "IBM Plex Mono", "SFMono-Regular", "Fira Code", ui-monospace, "Menlo", "Consolas", monospace;
+  --font-body: "JetBrains Mono", "IBM Plex Mono", "SFMono-Regular", "Fira Code", ui-monospace, "Menlo", "Consolas", monospace;
+
+  /* Spacing — 4pt scale, named */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+
+  /* Z — named levels only */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* Motion — exponential ease-out only */
+  --dur-short: 140ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Tailwind v4 theme bridge (utilities consume the tokens above) ───────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "SFMono-Regular", "JetBrains Mono", "Fira Code", "IBM Plex Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", monospace;
-  --font-display: "SFMono-Regular", "JetBrains Mono", "Fira Code", "IBM Plex Mono", "Menlo", "Monaco", "Consolas", "Liberation Mono", monospace;
+  --color-paper: var(--color-paper);
+  --color-paper-2: var(--color-paper-2);
+  --color-panel: var(--color-panel);
+  --color-panel-2: var(--color-panel-2);
+  --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --color-ink: var(--color-ink);
+  --color-ink-2: var(--color-ink-2);
+  --color-muted: var(--color-muted);
+  --color-faint: var(--color-faint);
+  --color-accent: var(--color-accent);
+  --color-accent-ink: var(--color-accent-ink);
+  --color-focus: var(--color-focus);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-warn: var(--color-warn);
+  --color-warn-bg: var(--color-warn-bg);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --z-base: var(--z-base);
+  --z-raised: var(--z-raised);
+  --z-dropdown: var(--z-dropdown);
+  --z-sticky: var(--z-sticky);
+  --z-sticky-nav: var(--z-sticky-nav);
+  --z-modal: var(--z-modal);
+  --z-toast: var(--z-toast);
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* Gate 34 — no horizontal scroll at any viewport; clip, never hidden */
 html {
+  overflow-x: clip;
   scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), monospace;
+  overflow-x: clip;
+  background: var(--color-paper);
+  color: var(--color-ink-2);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
 }
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display), monospace;
-  letter-spacing: 0;
-  text-transform: none;
+  font-family: var(--font-display);
+  font-style: normal;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 a,
@@ -47,102 +170,60 @@ input,
 select,
 textarea {
   transition:
-    color 160ms ease,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    opacity 160ms ease,
-    transform 160ms ease,
-    box-shadow 160ms ease;
+    color var(--dur-short) var(--ease-out),
+    background-color var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    opacity var(--dur-short) var(--ease-out);
 }
 
 ::selection {
-  background: rgba(166, 227, 161, 0.22);
-  color: #0c0c0c;
+  background: color-mix(in oklch, var(--color-accent) 28%, transparent);
+  color: var(--color-ink);
 }
 
-:where([class*="rounded-"]) {
-  border-radius: 0 !important;
+/* Focus rings appear instantly — never transitioned (gate 15) */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
 }
 
-:where(.text-stone-900) {
-  color: var(--muted-strong) !important;
+/* Terminal chrome: square corners, hairline rules, tabular figures for data */
+input,
+select,
+textarea,
+button,
+a {
+  border-radius: 0;
 }
 
-:where(.text-stone-800),
-:where(.text-stone-700),
-:where(.text-stone-600),
-:where(.text-stone-500) {
-  color: var(--foreground) !important;
+input,
+select,
+textarea {
+  caret-color: var(--color-accent);
 }
 
-:where(.text-stone-400),
-:where(.text-stone-300) {
-  color: var(--muted) !important;
+/* Numbers align in every stat, date, and time column */
+.tabular,
+time,
+[data-numeric] {
+  font-variant-numeric: tabular-nums;
 }
 
-:where(.border-stone-200),
-:where(.border-stone-200\/80),
-:where(.border-stone-300),
-:where(.border-stone-400),
-:where(.border-stone-500) {
-  border-color: var(--border) !important;
+hr {
+  border-color: var(--color-line);
 }
 
-:where(.bg-stone-50\/80),
-:where(.bg-stone-100),
-:where(.bg-white\/70),
-:where(.bg-white\/80),
-:where(.bg-white) {
-  background: var(--panel) !important;
-}
+/* Reduced motion — every transition above collapses to instant (gate 27) */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 
-:where(.bg-stone-900) {
-  background: var(--panel-strong) !important;
-  color: var(--muted-strong) !important;
-  border: 1px solid var(--border);
-  box-shadow: none !important;
-}
-
-:where(.bg-\[\#fffaf3\]\/90) {
-  background: var(--panel-strong) !important;
-}
-
-:where(.placeholder\:text-stone-400::placeholder) {
-  color: var(--muted) !important;
-}
-
-:where(.shadow-\[0_24px_80px_rgba\(80\,54\,36\,0\.08\)\]),
-:where(.shadow-\[0_18px_50px_rgba\(80\,54\,36\,0\.12\)\]),
-:where(.shadow-lg) {
-  box-shadow: none !important;
-}
-
-:where(input),
-:where(select),
-:where(textarea) {
-  caret-color: var(--accent);
-  border-radius: 0 !important;
-}
-
-:where(button),
-:where(a) {
-  border-radius: 0 !important;
-}
-
-:where(input),
-:where(select),
-:where(textarea),
-:where(button) {
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-:where(main a:hover),
-:where(button:hover) {
-  box-shadow: none;
-  background: #171717 !important;
-}
-
-:where(hr) {
-  border-color: var(--border);
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

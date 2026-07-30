@@ -64,7 +64,7 @@ export function SemesterCreateForm({
         });
         resetIfCreate(event.currentTarget, true);
       }}
-      className="grid gap-4 rounded-3xl border border-stone-200 bg-white/70 p-4 md:grid-cols-2"
+      className="grid gap-4 border border-line bg-paper-2 p-4 md:grid-cols-2"
     >
       <Field label="Semester name">
         <Input name="name" placeholder="Semester 1 2026" required />
@@ -75,8 +75,8 @@ export function SemesterCreateForm({
       <Field label="End date">
         <Input name="endDate" type="date" required />
       </Field>
-      <label className="flex items-center gap-3 rounded-2xl border border-stone-300 px-4 py-3 text-sm text-stone-700">
-        <input name="isActive" type="checkbox" className="h-4 w-4" />
+      <label className="flex items-center gap-3 border border-line px-3 py-2.5 text-sm text-ink-2">
+        <input name="isActive" type="checkbox" className="h-4 w-4 accent-[var(--color-accent)]" />
         Set as active semester
       </label>
       <div className="md:col-span-2">
@@ -122,7 +122,7 @@ export function SemesterUpdateForm({
           isActive: data.get("isActive") === "on",
         });
       }}
-      className="grid gap-4 rounded-3xl border border-stone-200 bg-stone-50/80 p-4 md:grid-cols-2"
+      className="grid gap-4 border border-line bg-paper-2 p-4 md:grid-cols-2"
     >
       <Field label="Semester name">
         <Input name="name" defaultValue={semester.name} required />
@@ -133,8 +133,8 @@ export function SemesterUpdateForm({
       <Field label="End date">
         <Input name="endDate" type="date" defaultValue={semester.endDate.slice(0, 10)} required />
       </Field>
-      <label className="flex items-center gap-3 rounded-2xl border border-stone-300 px-4 py-3 text-sm text-stone-700">
-        <input name="isActive" type="checkbox" className="h-4 w-4" defaultChecked={semester.isActive} />
+      <label className="flex items-center gap-3 border border-line px-3 py-2.5 text-sm text-ink-2">
+        <input name="isActive" type="checkbox" className="h-4 w-4 accent-[var(--color-accent)]" defaultChecked={semester.isActive} />
         Set as active semester
       </label>
       <div className="md:col-span-2">
@@ -787,7 +787,7 @@ export function FileUploadForm({
           name="file"
           type="file"
           required
-          className="file:mr-4 file:rounded-full file:border-0 file:bg-stone-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+          className="file:mr-4 file:border file:border-accent file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-accent-ink"
         />
       </Field>
       <div className="md:col-span-2">

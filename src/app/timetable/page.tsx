@@ -36,27 +36,27 @@ export default function TimetablePage() {
                 const daySessions = sessions.filter((session) => session.dayOfWeek === day);
 
                 return (
-                  <div key={day} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                  <div key={day} className="border border-line bg-paper-2 p-4">
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-xl font-semibold text-stone-900">{titleCase(day)}</h3>
+                      <h3 className="text-xl font-semibold text-ink">{titleCase(day)}</h3>
                       <Badge>{daySessions.length} slots</Badge>
                     </div>
 
                     {daySessions.length ? (
                       <div className="space-y-4">
                         {daySessions.map((session) => (
-                          <div key={session.id} className="rounded-3xl border border-stone-200 bg-stone-50/80 p-4">
+                          <div key={session.id} className="border border-line bg-paper-2 p-4">
                             <div className="mb-3 flex items-start justify-between gap-3">
                               <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
                                   {session.course.code}
                                 </p>
-                                <h4 className="mt-1 font-semibold text-stone-900">{session.course.name}</h4>
-                                <p className="text-sm text-stone-600">
+                                <h4 className="mt-1 font-semibold text-ink">{session.course.name}</h4>
+                                <p className="text-sm text-muted">
                                   {session.startTime} - {session.endTime}
                                 </p>
                               </div>
-                              <div className="h-3 w-3 rounded-full" style={{ backgroundColor: session.course.color }} />
+                              <div className="h-3 w-3 " style={{ backgroundColor: session.course.color }} />
                             </div>
                             <SessionUpdateForm
                               session={session}

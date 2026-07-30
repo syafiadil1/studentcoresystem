@@ -64,16 +64,16 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[32px] border border-stone-200/80 bg-[#fffaf3]/90 p-6 shadow-[0_24px_80px_rgba(80,54,36,0.08)] md:p-8">
+      <section className="border border-line bg-panel p-6 md:p-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted">
               StudentCore
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-stone-900">
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-ink">
               Run your academic week from one StudentCore workspace.
             </h1>
-            <p className="mt-4 text-base leading-7 text-stone-600">
+            <p className="mt-4 text-base leading-7 text-muted">
               All data stays in this browser only. New users open with an empty workspace unless
               they add their own courses and tasks.
             </p>
@@ -122,22 +122,22 @@ export default function DashboardPage() {
                 <button
                   type="button"
                   onClick={exportWorkspace}
-                  className="rounded-3xl border border-stone-200 bg-white/80 p-5 text-left transition hover:border-stone-400"
+                  className="border border-line bg-paper-2 p-5 text-left transition-colors hover:border-line-strong"
                 >
-                  <Download className="h-5 w-5 text-stone-700" />
-                  <h3 className="mt-4 text-lg font-semibold text-stone-900">Export backup</h3>
-                  <p className="mt-2 text-sm text-stone-600">
+                  <Download className="h-5 w-5 text-ink-2" />
+                  <h3 className="mt-4 text-lg font-semibold text-ink">Export backup</h3>
+                  <p className="mt-2 text-sm text-muted">
                     Download your full workspace as a JSON backup file.
                   </p>
                 </button>
                 <button
                   type="button"
                   onClick={() => importInputRef.current?.click()}
-                  className="rounded-3xl border border-stone-200 bg-white/80 p-5 text-left transition hover:border-stone-400"
+                  className="border border-line bg-paper-2 p-5 text-left transition-colors hover:border-line-strong"
                 >
-                  <Upload className="h-5 w-5 text-stone-700" />
-                  <h3 className="mt-4 text-lg font-semibold text-stone-900">Import backup</h3>
-                  <p className="mt-2 text-sm text-stone-600">
+                  <Upload className="h-5 w-5 text-ink-2" />
+                  <h3 className="mt-4 text-lg font-semibold text-ink">Import backup</h3>
+                  <p className="mt-2 text-sm text-muted">
                     Restore a previously exported StudentCore workspace file.
                   </p>
                 </button>
@@ -164,23 +164,23 @@ export default function DashboardPage() {
             <Section title="Active Semester" description="See current semester progress at a glance.">
               {data.activeSemesterSummary ? (
                 <div className="space-y-4">
-                  <div className="rounded-3xl border border-stone-200 bg-white/80 p-5">
+                  <div className="border border-line bg-paper-2 p-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h3 className="text-2xl font-semibold text-stone-900">
+                        <h3 className="text-2xl font-semibold text-ink">
                           {data.activeSemesterSummary.name}
                         </h3>
-                        <p className="mt-2 text-sm text-stone-600">
+                        <p className="mt-2 text-sm text-muted">
                           {formatDateTime(data.activeSemesterSummary.startDate).slice(0, 11)} - {formatDateTime(data.activeSemesterSummary.endDate).slice(0, 11)}
                         </p>
                       </div>
-                      <Badge className="bg-[#d8ead9] text-[#27563c]">
+                      <Badge className="bg-success-bg text-success">
                         {data.activeSemesterSummary.progressPercent}% done
                       </Badge>
                     </div>
-                    <div className="mt-5 h-3 overflow-hidden rounded-full bg-stone-200">
+                    <div className="mt-5 h-3 overflow-hidden bg-line">
                       <div
-                        className="h-full rounded-full bg-stone-900"
+                        className="h-full bg-accent"
                         style={{ width: `${data.activeSemesterSummary.progressPercent}%` }}
                       />
                     </div>
@@ -204,10 +204,10 @@ export default function DashboardPage() {
                   {data.todayClasses.map((session) => (
                     <div
                       key={session.id}
-                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                      className={`border bg-paper-2 p-4 transition-colors ${
                         selectedItem?.kind === "class" && selectedItem.id === session.id
-                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
-                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                          ? "border-line-strong"
+                          : "border-line hover:border-line-strong"
                       }`}
                     >
                       <div
@@ -224,21 +224,21 @@ export default function DashboardPage() {
                         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <div className="flex items-center gap-4">
                             <div
-                              className="h-14 w-2 rounded-full"
+                              className="h-14 w-2 "
                               style={{ backgroundColor: session.color }}
                             />
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+                              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
                                 {session.courseCode}
                               </p>
-                              <h3 className="text-lg font-semibold text-stone-900">
+                              <h3 className="text-lg font-semibold text-ink">
                                 {session.courseName}
                               </h3>
-                              <p className="text-sm text-stone-600">{session.location}</p>
+                              <p className="text-sm text-muted">{session.location}</p>
                             </div>
                           </div>
 
-                          <div className="text-sm text-stone-700">
+                          <div className="text-sm text-ink-2">
                             <p className="font-medium">
                               {session.startTime} - {session.endTime}
                             </p>
@@ -247,7 +247,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       {selectedItem?.kind === "class" && selectedItem.id === session.id && selectedClassCard && selectedClass ? (
-                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                        <div className="mt-4 space-y-4 border-t border-line pt-4">
                           {!editing ? (
                             <>
                               <div className="grid gap-3 md:grid-cols-3">
@@ -297,10 +297,10 @@ export default function DashboardPage() {
                   {data.upcomingAssessments.map((item) => (
                     <div
                       key={item.id}
-                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                      className={`border bg-paper-2 p-4 transition-colors ${
                         selectedItem?.kind === "assessment" && selectedItem.id === item.id
-                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
-                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                          ? "border-line-strong"
+                          : "border-line hover:border-line-strong"
                       }`}
                     >
                       <div
@@ -316,18 +316,18 @@ export default function DashboardPage() {
                       >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <h3 className="font-semibold text-stone-900">{item.title}</h3>
-                            <p className="text-sm text-stone-600">{item.courseName}</p>
+                            <h3 className="font-semibold text-ink">{item.title}</h3>
+                            <p className="text-sm text-muted">{item.courseName}</p>
                           </div>
                           <Badge>{titleCase(item.status)}</Badge>
                         </div>
-                        <p className="mt-3 text-sm text-stone-700">{formatDateTime(item.dueAt)}</p>
+                        <p className="mt-3 text-sm text-ink-2">{formatDateTime(item.dueAt)}</p>
                       </div>
                       {selectedItem?.kind === "assessment" &&
                       selectedItem.id === item.id &&
                       selectedAssessment &&
                       selectedAssessmentCard ? (
-                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                        <div className="mt-4 space-y-4 border-t border-line pt-4">
                           {!editing ? (
                             <>
                               <div className="grid gap-3 md:grid-cols-2">
@@ -381,10 +381,10 @@ export default function DashboardPage() {
                   {data.overdueTasks.map((task) => (
                     <div
                       key={task.id}
-                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                      className={`border bg-paper-2 p-4 transition-colors ${
                         selectedItem?.kind === "task" && selectedItem.id === task.id
-                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
-                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                          ? "border-line-strong"
+                          : "border-line hover:border-line-strong"
                       }`}
                     >
                       <div
@@ -398,21 +398,21 @@ export default function DashboardPage() {
                       >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <h3 className="font-semibold text-stone-900">{task.title}</h3>
-                            <p className="text-sm text-stone-600">
+                            <h3 className="font-semibold text-ink">{task.title}</h3>
+                            <p className="text-sm text-muted">
                               {state.courses.find((course) => course.id === task.courseId)?.name || "General task"}
                             </p>
                           </div>
-                          <Badge className="bg-[#f9d3d0] text-[#842029]">{titleCase(task.priority)}</Badge>
+                          <Badge className="bg-danger-bg text-danger">{titleCase(task.priority)}</Badge>
                         </div>
                         {task.dueAt ? (
-                          <p className="mt-3 text-sm text-stone-700">
+                          <p className="mt-3 text-sm text-ink-2">
                             {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
                           </p>
                         ) : null}
                       </div>
                       {selectedItem?.kind === "task" && selectedItem.id === task.id && selectedTask ? (
-                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                        <div className="mt-4 space-y-4 border-t border-line pt-4">
                           {!editing ? (
                             <>
                               <div className="grid gap-3 md:grid-cols-2">
@@ -462,10 +462,10 @@ export default function DashboardPage() {
                   {data.dueSoonTasks.map((task) => (
                     <div
                       key={task.id}
-                      className={`rounded-3xl border bg-white/70 p-4 transition ${
+                      className={`border bg-paper-2 p-4 transition-colors ${
                         selectedItem?.kind === "task" && selectedItem.id === task.id
-                          ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
-                          : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-400"
+                          ? "border-line-strong"
+                          : "border-line hover:border-line-strong"
                       }`}
                     >
                       <div
@@ -479,21 +479,21 @@ export default function DashboardPage() {
                       >
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <h3 className="font-semibold text-stone-900">{task.title}</h3>
-                            <p className="text-sm text-stone-600">
+                            <h3 className="font-semibold text-ink">{task.title}</h3>
+                            <p className="text-sm text-muted">
                               {state.courses.find((course) => course.id === task.courseId)?.name || "General task"}
                             </p>
                           </div>
                           <Badge>{titleCase(task.status)}</Badge>
                         </div>
                         {task.dueAt ? (
-                          <p className="mt-3 text-sm text-stone-700">
+                          <p className="mt-3 text-sm text-ink-2">
                             {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
                           </p>
                         ) : null}
                       </div>
                       {selectedItem?.kind === "task" && selectedItem.id === task.id && selectedTask ? (
-                        <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                        <div className="mt-4 space-y-4 border-t border-line pt-4">
                           {!editing ? (
                             <>
                               <div className="grid gap-3 md:grid-cols-2">

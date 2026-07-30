@@ -14,7 +14,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-mode="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var m=localStorage.getItem("studentcore-mode");if(m==="light")document.documentElement.setAttribute("data-mode","light")}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="antialiased">
         <StudentCoreProvider>
           <AppShell>{children}</AppShell>

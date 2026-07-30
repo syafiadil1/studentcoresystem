@@ -94,19 +94,19 @@ export default function SearchPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[32px] border border-stone-200/80 bg-[#fffaf3]/90 p-6 shadow-[0_24px_80px_rgba(80,54,36,0.08)] md:p-8">
+      <section className="border border-line bg-panel p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-stone-500">Global Search</p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-stone-900">Find anything in StudentCore.</h1>
-            <p className="mt-3 max-w-2xl text-base text-stone-600">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted">Global Search</p>
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-ink">Find anything in StudentCore.</h1>
+            <p className="mt-3 max-w-2xl text-base text-muted">
               Search across courses, timetable, tasks, assessments, files, and results from one place.
             </p>
           </div>
-          <div className="flex items-center gap-3 rounded-3xl bg-stone-900 px-5 py-4 text-stone-100">
+          <div className="flex items-center gap-3 border border-accent px-5 py-4 text-accent">
             <SearchIcon className="h-5 w-5" />
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-stone-400">Matches</p>
+              <p className="text-xs uppercase tracking-[0.22em]">Matches</p>
               <p className="text-2xl font-semibold">{normalizedQuery ? totalMatches : state.courses.length + state.tasks.length + state.assessments.length + state.files.length + (state.results?.length ?? 0) + state.sessions.length}</p>
             </div>
           </div>
@@ -147,13 +147,13 @@ export default function SearchPage() {
                   <Link
                     key={course.id}
                     href={`/courses/${course.id}`}
-                    className="block rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:border-stone-400 hover:bg-white"
+                    className="block border border-line bg-paper-2 p-4 transition-colors hover:border-line-strong hover:bg-paper-2"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{course.code}</p>
-                        <h3 className="mt-1 font-semibold text-stone-900">{course.name}</h3>
-                        <p className="text-sm text-stone-600">{course.lecturerName} · {course.semester?.name || "No semester"}</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">{course.code}</p>
+                        <h3 className="mt-1 font-semibold text-ink">{course.name}</h3>
+                        <p className="text-sm text-muted">{course.lecturerName} · {course.semester?.name || "No semester"}</p>
                       </div>
                       <Badge>{course.semester?.isActive ? "Active" : "Course"}</Badge>
                     </div>
@@ -172,13 +172,13 @@ export default function SearchPage() {
                   <Link
                     key={session.id}
                     href={`/courses/${session.course!.id}`}
-                    className="block rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:border-stone-400 hover:bg-white"
+                    className="block border border-line bg-paper-2 p-4 transition-colors hover:border-line-strong hover:bg-paper-2"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">{session.course?.code}</p>
-                        <h3 className="mt-1 font-semibold text-stone-900">{titleCase(session.sessionType)}</h3>
-                        <p className="text-sm text-stone-600">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">{session.course?.code}</p>
+                        <h3 className="mt-1 font-semibold text-ink">{titleCase(session.sessionType)}</h3>
+                        <p className="text-sm text-muted">
                           {titleCase(session.dayOfWeek)} · {session.startTime} - {session.endTime} · {session.location}
                         </p>
                       </div>
@@ -199,22 +199,22 @@ export default function SearchPage() {
                   <Link
                     key={task.id}
                     href="/tasks"
-                    className="block rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:border-stone-400 hover:bg-white"
+                    className="block border border-line bg-paper-2 p-4 transition-colors hover:border-line-strong hover:bg-paper-2"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h3 className="font-semibold text-stone-900">{task.title}</h3>
-                        <p className="mt-1 text-sm text-stone-600">
+                        <h3 className="font-semibold text-ink">{task.title}</h3>
+                        <p className="mt-1 text-sm text-muted">
                           {task.course ? `${task.course.code} · ${task.course.name}` : "General task"}
                         </p>
-                        <p className="mt-2 text-sm text-stone-700">{task.description || "No description"}</p>
+                        <p className="mt-2 text-sm text-ink-2">{task.description || "No description"}</p>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Badge>{titleCase(task.status)}</Badge>
-                        <Badge className="bg-[#f6d8c8] text-[#7a3626]">{titleCase(task.priority)}</Badge>
+                        <Badge className="bg-warn-bg text-warn">{titleCase(task.priority)}</Badge>
                       </div>
                     </div>
-                    {task.dueAt ? <p className="mt-3 text-sm text-stone-600">{describeDeadline(task.dueAt)}</p> : null}
+                    {task.dueAt ? <p className="mt-3 text-sm text-muted">{describeDeadline(task.dueAt)}</p> : null}
                   </Link>
                 ))
               ) : (
@@ -230,19 +230,19 @@ export default function SearchPage() {
                   <Link
                     key={assessment.id}
                     href="/assessments"
-                    className="block rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:border-stone-400 hover:bg-white"
+                    className="block border border-line bg-paper-2 p-4 transition-colors hover:border-line-strong hover:bg-paper-2"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h3 className="font-semibold text-stone-900">{assessment.title}</h3>
-                        <p className="mt-1 text-sm text-stone-600">
+                        <h3 className="font-semibold text-ink">{assessment.title}</h3>
+                        <p className="mt-1 text-sm text-muted">
                           {assessment.course?.code} · {assessment.course?.name}
                         </p>
-                        <p className="mt-2 text-sm text-stone-700">{formatDateTime(assessment.dueAt)}</p>
+                        <p className="mt-2 text-sm text-ink-2">{formatDateTime(assessment.dueAt)}</p>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Badge>{titleCase(assessment.type)}</Badge>
-                        <Badge className="bg-[#d8ead9] text-[#27563c]">{titleCase(assessment.status)}</Badge>
+                        <Badge className="bg-success-bg text-success">{titleCase(assessment.status)}</Badge>
                       </div>
                     </div>
                   </Link>
@@ -257,14 +257,14 @@ export default function SearchPage() {
             <div className="space-y-3">
               {files.length ? (
                 files.map((file) => (
-                  <div key={file.id} className="rounded-3xl border border-stone-200 bg-white/70 p-4">
+                  <div key={file.id} className="border border-line bg-paper-2 p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
                           {file.course?.code}
                         </p>
-                        <h3 className="mt-1 font-semibold text-stone-900">{file.title}</h3>
-                        <p className="text-sm text-stone-600">
+                        <h3 className="mt-1 font-semibold text-ink">{file.title}</h3>
+                        <p className="text-sm text-muted">
                           {file.fileName} · {titleCase(file.fileCategory)} · {bytesToSize(file.sizeBytes)}
                         </p>
                       </div>
@@ -272,13 +272,13 @@ export default function SearchPage() {
                         <button
                           type="button"
                           onClick={() => openDataUrlInNewTab(file.fileDataUrl)}
-                          className="inline-flex items-center justify-center rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                          className="inline-flex items-center justify-center bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
                         >
                           Open
                         </button>
                         <Link
                           href={`/courses/${file.course!.id}`}
-                          className="inline-flex items-center justify-center rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                          className="inline-flex items-center justify-center bg-accent px-4 py-3 text-sm font-medium text-accent-ink"
                         >
                           Course
                         </Link>
@@ -299,27 +299,27 @@ export default function SearchPage() {
                   <Link
                     key={result.id}
                     href="/results"
-                    className="block rounded-3xl border border-stone-200 bg-white/70 p-4 transition hover:border-stone-400 hover:bg-white"
+                    className="block border border-line bg-paper-2 p-4 transition-colors hover:border-line-strong hover:bg-paper-2"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
                           {result.course?.code || "Result"}
                         </p>
-                        <h3 className="mt-1 font-semibold text-stone-900">{result.title}</h3>
-                        <p className="text-sm text-stone-600">
+                        <h3 className="mt-1 font-semibold text-ink">{result.title}</h3>
+                        <p className="text-sm text-muted">
                           {result.course?.name || "No course"} · {result.semester?.name || "No semester"}
                         </p>
-                        <p className="mt-2 text-sm text-stone-700">
+                        <p className="mt-2 text-sm text-ink-2">
                           Grade {result.grade} · Pointer {result.gradePoint.toFixed(2)} · {result.creditHours} credit hours
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Badge>{result.grade}</Badge>
-                        <Badge className="bg-[#d8ead9] text-[#27563c]">{titleCase(result.status)}</Badge>
+                        <Badge className="bg-success-bg text-success">{titleCase(result.status)}</Badge>
                       </div>
                     </div>
-                    {result.notes ? <p className="mt-3 text-sm text-stone-600">{result.notes}</p> : null}
+                    {result.notes ? <p className="mt-3 text-sm text-muted">{result.notes}</p> : null}
                   </Link>
                 ))
               ) : (

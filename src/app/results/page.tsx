@@ -69,14 +69,14 @@ export default function ResultsPage() {
               {data.summaries.map((summary) => (
                 <div
                   key={summary.semesterId}
-                  className={`rounded-3xl border bg-white/80 p-4 transition ${
+                  className={`border bg-paper-2 p-4 transition-colors ${
                     expandedSemesterId === summary.semesterId
-                      ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]"
-                      : "border-stone-200"
+                      ? "border-line-strong"
+                      : "border-line"
                   }`}
                 >
                   <div
-                    className="cursor-pointer rounded-2xl transition hover:bg-stone-50/80"
+                    className="cursor-pointer transition-colors hover:bg-paper-2"
                     onClick={() =>
                       setExpandedSemesterId((current) =>
                         current === summary.semesterId ? null : summary.semesterId,
@@ -85,16 +85,16 @@ export default function ResultsPage() {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h3 className="text-lg font-semibold text-stone-900">{summary.semesterName}</h3>
-                        <p className="mt-1 text-sm text-stone-600">
+                        <h3 className="text-lg font-semibold text-ink">{summary.semesterName}</h3>
+                        <p className="mt-1 text-sm text-muted">
                           {summary.resultsCount} results · {summary.totalCredits} credits
                         </p>
                       </div>
-                      <Badge className="bg-[#d8ead9] text-[#27563c]">GPA {summary.gpa.toFixed(2)}</Badge>
+                      <Badge className="bg-success-bg text-success">GPA {summary.gpa.toFixed(2)}</Badge>
                     </div>
                   </div>
                   {expandedSemesterId === summary.semesterId ? (
-                    <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                    <div className="mt-4 space-y-4 border-t border-line pt-4">
                       <div className="grid gap-3 md:grid-cols-3">
                         <DetailRow label="GPA" value={summary.gpa.toFixed(2)} />
                         <DetailRow label="Credits" value={summary.totalCredits} />
@@ -104,21 +104,21 @@ export default function ResultsPage() {
                         {data.resultsBySemester[summary.semesterId]?.map((result) => (
                           <div
                             key={result.id}
-                            className="rounded-2xl border border-stone-200 bg-stone-50/80 p-4"
+                            className="border border-line bg-paper-2 p-4"
                           >
                             <div className="flex flex-wrap items-center justify-between gap-3">
                               <div>
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
                                   {result.course?.code || "Unknown course"}
                                 </p>
-                                <h4 className="mt-1 font-semibold text-stone-900">
+                                <h4 className="mt-1 font-semibold text-ink">
                                   {result.course?.name || result.title}
                                 </h4>
-                                <p className="text-sm text-stone-600">{result.title}</p>
+                                <p className="text-sm text-muted">{result.title}</p>
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 <Badge>{result.grade}</Badge>
-                                <Badge className="bg-stone-100 text-stone-700">
+                                <Badge className="bg-panel-2 text-ink-2">
                                   Pointer {result.gradePoint.toFixed(2)}
                                 </Badge>
                               </div>
@@ -134,7 +134,7 @@ export default function ResultsPage() {
                       <button
                         type="button"
                         onClick={() => setExpandedSemesterId(null)}
-                        className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                        className="bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
                       >
                         Collapse
                       </button>
@@ -153,17 +153,17 @@ export default function ResultsPage() {
         <EmptyState title="Loading results" copy="Reading result data from this browser." />
       ) : (
         <Section title="Result Records" description="Expand a result card to view full details or edit it.">
-          <div className="mb-5 grid gap-4 rounded-3xl border border-stone-200 bg-white/70 p-4 md:grid-cols-[1fr_auto]">
+          <div className="mb-5 grid gap-4 border border-line bg-paper-2 p-4 md:grid-cols-[1fr_auto]">
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search title, course, semester, grade, status, notes..."
-              className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-stone-500"
+              className="w-full border border-line bg-paper-2 px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-faint focus:border-line-strong"
             />
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+              className="bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
             >
               Clear
             </button>
@@ -173,12 +173,12 @@ export default function ResultsPage() {
               {filteredResults.map((result) => (
                 <div
                   key={result.id}
-                  className={`rounded-3xl border bg-white/70 p-4 transition ${
-                    selectedResultId === result.id ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]" : "border-stone-200"
+                  className={`border bg-paper-2 p-4 transition-colors ${
+                    selectedResultId === result.id ? "border-line-strong" : "border-line"
                   }`}
                 >
                   <div
-                    className="cursor-pointer rounded-2xl transition hover:bg-stone-50/80"
+                    className="cursor-pointer transition-colors hover:bg-paper-2"
                     onClick={() => {
                       setSelectedResultId((current) => (current === result.id ? null : result.id));
                       setEditing(false);
@@ -186,25 +186,25 @@ export default function ResultsPage() {
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-500">
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted">
                           {result.course?.code || "Unknown course"}
                         </p>
-                        <h3 className="mt-1 text-lg font-semibold text-stone-900">{result.title}</h3>
-                        <p className="text-sm text-stone-600">
+                        <h3 className="mt-1 text-lg font-semibold text-ink">{result.title}</h3>
+                        <p className="text-sm text-muted">
                           {result.semester?.name || "Removed semester"} · {result.course?.name || "Removed course"}
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <Badge>{result.grade}</Badge>
-                        <Badge className="bg-[#d8ead9] text-[#27563c]">{titleCase(result.status)}</Badge>
+                        <Badge className="bg-success-bg text-success">{titleCase(result.status)}</Badge>
                       </div>
                     </div>
-                    <p className="mt-3 text-sm text-stone-700">
+                    <p className="mt-3 text-sm text-ink-2">
                       Grade point {result.gradePoint.toFixed(2)} · {result.creditHours} credits
                     </p>
                   </div>
                   {selectedResultId === result.id ? (
-                    <div className="mt-4 space-y-4 border-t border-stone-200 pt-4">
+                    <div className="mt-4 space-y-4 border-t border-line pt-4">
                       {!editing ? (
                         <>
                           <div className="grid gap-3 md:grid-cols-2">
@@ -218,7 +218,7 @@ export default function ResultsPage() {
                             <button
                               type="button"
                               onClick={() => setEditing(true)}
-                              className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                              className="bg-accent px-4 py-3 text-sm font-medium text-accent-ink"
                             >
                               Edit result
                             </button>
@@ -228,7 +228,7 @@ export default function ResultsPage() {
                                 setSelectedResultId(null);
                                 setEditing(false);
                               }}
-                              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                              className="bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
                             >
                               Collapse
                             </button>

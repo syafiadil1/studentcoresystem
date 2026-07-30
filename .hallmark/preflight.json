@@ -1,0 +1,8 @@
+{
+  "lastScan": "2026-07-30",
+  "fontStack": "JetBrains Mono / IBM Plex Mono / SFMono-Regular (terminal mono, display + body)",
+  "palette": "OKLCH custom properties in src/app/globals.css :root, phosphor-green anchor hue 142",
+  "motion": "none detected; ease-out transitions only",
+  "spacing": "Tailwind 4-pt + named --space-* tokens",
+  "framework": "Next.js 16 (App Router) + TypeScript + Tailwind CSS v4"
+}

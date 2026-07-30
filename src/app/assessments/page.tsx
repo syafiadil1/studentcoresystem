@@ -40,11 +40,11 @@ export default function AssessmentsPage() {
         <EmptyState title="Loading assessments" copy="Reading assessment data from this browser." />
       ) : (
         <Section title="Assessment List" description="Filter upcoming and submitted academic work.">
-          <div className="mb-5 grid gap-4 rounded-3xl border border-stone-200 bg-white/70 p-4 md:grid-cols-4">
+          <div className="mb-5 grid gap-4 border border-line bg-paper-2 p-4 md:grid-cols-4">
             <select
               value={courseId}
               onChange={(event) => setCourseId(event.target.value)}
-              className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm"
+              className="w-full border border-line bg-paper-2 px-4 py-3 text-sm"
             >
               <option value="">All courses</option>
               {data.courses.map((course) => (
@@ -56,7 +56,7 @@ export default function AssessmentsPage() {
             <select
               value={type}
               onChange={(event) => setType(event.target.value)}
-              className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm"
+              className="w-full border border-line bg-paper-2 px-4 py-3 text-sm"
             >
               <option value="">All types</option>
               {assessmentTypeOptions.map((item) => (
@@ -68,7 +68,7 @@ export default function AssessmentsPage() {
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value)}
-              className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm"
+              className="w-full border border-line bg-paper-2 px-4 py-3 text-sm"
             >
               <option value="">All statuses</option>
               {assessmentStatusOptions.map((item) => (
@@ -84,7 +84,7 @@ export default function AssessmentsPage() {
                 setType("");
                 setStatus("");
               }}
-              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+              className="bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
             >
               Clear filters
             </button>
@@ -95,32 +95,32 @@ export default function AssessmentsPage() {
               {data.assessments.map((assessment) => (
                 <div
                   key={assessment.id}
-                  className={`rounded-3xl border bg-white/70 p-4 transition ${
-                    selectedAssessmentId === assessment.id ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]" : "border-stone-200"
+                  className={`border bg-paper-2 p-4 transition-colors ${
+                    selectedAssessmentId === assessment.id ? "border-line-strong" : "border-line"
                   }`}
                 >
                   <div
-                    className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl transition hover:bg-stone-50/80"
+                    className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 transition-colors hover:bg-paper-2"
                     onClick={() => {
                       setSelectedAssessmentId((current) => (current === assessment.id ? null : assessment.id));
                       setEditing(false);
                     }}
                   >
                     <div>
-                      <h3 className="font-semibold text-stone-900">{assessment.title}</h3>
-                      <p className="text-sm text-stone-600">{assessment.course.name}</p>
+                      <h3 className="font-semibold text-ink">{assessment.title}</h3>
+                      <p className="text-sm text-muted">{assessment.course.name}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Badge>{titleCase(assessment.type)}</Badge>
-                      <Badge className="bg-[#d8ead9] text-[#27563c]">{titleCase(assessment.status)}</Badge>
+                      <Badge className="bg-success-bg text-success">{titleCase(assessment.status)}</Badge>
                     </div>
                   </div>
-                  <p className="mb-3 text-sm text-stone-700">
+                  <p className="mb-3 text-sm text-ink-2">
                     {formatDateTime(assessment.dueAt)}
                     {assessment.weight ? ` · ${assessment.weight}%` : ""}
                   </p>
                   {selectedAssessmentId === assessment.id ? (
-                    <div className="space-y-4 border-t border-stone-200 pt-4">
+                    <div className="space-y-4 border-t border-line pt-4">
                       {!editing ? (
                         <>
                           <div className="grid gap-3 md:grid-cols-2">
@@ -133,7 +133,7 @@ export default function AssessmentsPage() {
                             <button
                               type="button"
                               onClick={() => setEditing(true)}
-                              className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                              className="bg-accent px-4 py-3 text-sm font-medium text-accent-ink"
                             >
                               Edit assessment
                             </button>
@@ -143,7 +143,7 @@ export default function AssessmentsPage() {
                                 setSelectedAssessmentId(null);
                                 setEditing(false);
                               }}
-                              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                              className="bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
                             >
                               Collapse
                             </button>

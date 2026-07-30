@@ -31,11 +31,11 @@ export default function TasksPage() {
         <EmptyState title="Loading tasks" copy="Reading task data from this browser." />
       ) : (
         <Section title="Task List" description="Filter by linked course and current status.">
-          <div className="mb-5 grid gap-4 rounded-3xl border border-stone-200 bg-white/70 p-4 md:grid-cols-3">
+          <div className="mb-5 grid gap-4 border border-line bg-paper-2 p-4 md:grid-cols-3">
             <select
               value={courseId}
               onChange={(event) => setCourseId(event.target.value)}
-              className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm"
+              className="w-full border border-line bg-paper-2 px-4 py-3 text-sm"
             >
               <option value="">All courses</option>
               {data.courses.map((course) => (
@@ -47,7 +47,7 @@ export default function TasksPage() {
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value)}
-              className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm"
+              className="w-full border border-line bg-paper-2 px-4 py-3 text-sm"
             >
               <option value="">All statuses</option>
               {taskStatusOptions.map((item) => (
@@ -62,7 +62,7 @@ export default function TasksPage() {
                 setCourseId("");
                 setStatus("");
               }}
-              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+              className="bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
             >
               Clear filters
             </button>
@@ -73,33 +73,33 @@ export default function TasksPage() {
               {data.tasks.map((task) => (
                 <div
                   key={task.id}
-                  className={`rounded-3xl border bg-white/70 p-4 transition ${
-                    selectedTaskId === task.id ? "border-stone-500 shadow-[0_18px_50px_rgba(80,54,36,0.12)]" : "border-stone-200"
+                  className={`border bg-paper-2 p-4 transition-colors ${
+                    selectedTaskId === task.id ? "border-line-strong" : "border-line"
                   }`}
                 >
                   <div
-                    className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-2xl transition hover:bg-stone-50/80"
+                    className="mb-3 flex cursor-pointer flex-wrap items-center justify-between gap-3 transition-colors hover:bg-paper-2"
                     onClick={() => {
                       setSelectedTaskId((current) => (current === task.id ? null : task.id));
                       setEditing(false);
                     }}
                   >
                     <div>
-                      <h3 className="font-semibold text-stone-900">{task.title}</h3>
-                      <p className="text-sm text-stone-600">{task.course?.name || "General task"}</p>
+                      <h3 className="font-semibold text-ink">{task.title}</h3>
+                      <p className="text-sm text-muted">{task.course?.name || "General task"}</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Badge>{titleCase(task.status)}</Badge>
-                      <Badge className="bg-[#f6d8c8] text-[#7a3626]">{titleCase(task.priority)}</Badge>
+                      <Badge className="bg-warn-bg text-warn">{titleCase(task.priority)}</Badge>
                     </div>
                   </div>
                   {task.dueAt ? (
-                    <p className="mb-3 text-sm text-stone-700">
+                    <p className="mb-3 text-sm text-ink-2">
                       {formatDateTime(task.dueAt)} · {describeDeadline(task.dueAt)}
                     </p>
                   ) : null}
                   {selectedTaskId === task.id ? (
-                    <div className="space-y-4 border-t border-stone-200 pt-4">
+                    <div className="space-y-4 border-t border-line pt-4">
                       {!editing ? (
                         <>
                           <div className="grid gap-3 md:grid-cols-2">
@@ -113,7 +113,7 @@ export default function TasksPage() {
                             <button
                               type="button"
                               onClick={() => setEditing(true)}
-                              className="rounded-2xl bg-stone-900 px-4 py-3 text-sm font-medium text-white"
+                              className="bg-accent px-4 py-3 text-sm font-medium text-accent-ink"
                             >
                               Edit task
                             </button>
@@ -123,7 +123,7 @@ export default function TasksPage() {
                                 setSelectedTaskId(null);
                                 setEditing(false);
                               }}
-                              className="rounded-2xl bg-stone-100 px-4 py-3 text-sm font-medium text-stone-900"
+                              className="bg-panel-2 px-4 py-3 text-sm font-medium text-ink"
                             >
                               Collapse
                             </button>
