@@ -148,18 +148,15 @@ function seedState(): StudentCoreState {
     return { ...s, id, createdAt: "2026-07-30T00:00:00.000Z", updatedAt: "2026-07-30T00:00:00.000Z" };
   });
 
-  const [S1, S2, S3, S4] = semesterIds;
+  const placeholders = ["__S1__", "__S2__", "__S3__", "__S4__"] as const;
 
   const courseIdMap = new Map<string, string>();
   const courses: Course[] = seedCourses.map((c) => {
     const id = crypto.randomUUID();
-    let semesterId = c.semesterId;
-    if (semesterId === "__S1__") semesterId = S1;
-    else if (semesterId === "__S2__") semesterId = S2;
-    else if (semesterId === "__S3__") semesterId = S3;
-    else if (semesterId === "__S4__") semesterId = S4;
+    const placeholderIndex = placeholders.indexOf(c.semesterId as typeof placeholders[number]);
+    const semesterId = placeholderIndex >= 0 ? semesterIds[placeholderIndex] : c.semesterId;
 
-    courseIdMap.set(`${c.code}_${semesterId}`, id);
+    courseIdMap.set(c.code, id);
     return { ...c, id, semesterId, createdAt: "2026-07-30T00:00:00.000Z", updatedAt: "2026-07-30T00:00:00.000Z" };
   });
 
@@ -194,11 +191,20 @@ function seedState(): StudentCoreState {
     "C+": 2.33, C: 2, "C-": 1.67, "D+": 1.33, D: 1, F: 0,
   };
 
+  const getSemesterId = (key: string) => {
+    const idx = placeholders.indexOf(key as typeof placeholders[number]);
+    return idx >= 0 ? semesterIds[idx] : key;
+  };
+  const getResultCourseId = (key: string) => {
+    const code = key.replace(/_S[1-4]__$/, "");
+    return courseIdMap.get(code) ?? "";
+  };
+
   const results: CourseResult[] = seedResults.map((r) => ({
     ...r,
     id: crypto.randomUUID(),
-    courseId: getCourseId(r.courseId),
-    semesterId: r.semesterId === "__S1__" ? S1 : r.semesterId === "__S2__" ? S2 : r.semesterId === "__S3__" ? S3 : S4,
+    courseId: getResultCourseId(r.courseId),
+    semesterId: getSemesterId(r.semesterId),
     gradePoint: gradePointMap[r.grade],
     createdAt: "2026-07-30T00:00:00.000Z",
     updatedAt: "2026-07-30T00:00:00.000Z",
