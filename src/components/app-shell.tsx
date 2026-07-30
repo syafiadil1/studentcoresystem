@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 px-4 py-5 md:flex-row md:px-6">
+      <div className="flex min-h-screen flex-col gap-6 px-3 py-5 md:flex-row md:px-4">
         <aside className="md:sticky md:top-5 md:z-sticky md:h-[calc(100vh-2.5rem)] md:w-72">
           <div className="flex h-full flex-col border border-line bg-panel p-5">
             <div className="mb-8">
