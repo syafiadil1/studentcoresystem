@@ -160,7 +160,10 @@ function seedState(): StudentCoreState {
     return { ...c, id, semesterId, createdAt: "2026-07-30T00:00:00.000Z", updatedAt: "2026-07-30T00:00:00.000Z" };
   });
 
-  const getCourseId = (key: string) => courseIdMap.get(key) ?? "";
+  const getCourseId = (key: string) => {
+    const code = key.startsWith("__") ? key.replace(/^__|__$/g, "") : key;
+    return courseIdMap.get(code) ?? "";
+  };
 
   const sessions: ClassSession[] = seedSessions.map((s) => ({
     ...s,
@@ -196,7 +199,8 @@ function seedState(): StudentCoreState {
     return idx >= 0 ? semesterIds[idx] : key;
   };
   const getResultCourseId = (key: string) => {
-    const code = key.replace(/_S[1-4]__$/, "");
+    const cleaned = key.startsWith("__") ? key.replace(/^__|__$/g, "") : key;
+    const code = cleaned.replace(/_S[1-4]$/, "");
     return courseIdMap.get(code) ?? "";
   };
 
